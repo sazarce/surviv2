@@ -10,7 +10,7 @@
 9. In the console on the bottom you must see `temp1`.
 10. Deactivate breakpoints and resume script execution (press ctrl + f8 and after press f8).
 11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code if you need aim + zoom or [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) code if you need only zoom.
-12. In the console you may type `reload()` for launch aim and `stop()` for stops the aim.
+12. In the console you may type `reload()` for launch and `stop()` for stops the scripts.
 
 Its must be worked. How to check script? Your person must automatically turn to the closest enemy.
 Update: On mouse click(shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.
