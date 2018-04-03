@@ -10,6 +10,7 @@ var detectEnemies = function() {
 	for(var i = 0; i < playerIds.length; i++) {
 		if( game.objectCreator.idToObj[playerIds[i]] && 
 			(!game.objectCreator.idToObj[playerIds[i]].netData.dead) && 
+			(!game.objectCreator.idToObj[playerIds[i]].netData.downed) &&
 			game.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
 			if(playerIds[i] != selfId) {
 				result.push(game.objectCreator.idToObj[playerIds[i]]);	
@@ -123,7 +124,7 @@ var removeSpaceKeyListener = function() {
 	});
 }
 
-var timer = {};
+var timer = null;
 function ticker() {
 	iterate();
 	timer = setTimeout(ticker, 30);
@@ -139,5 +140,23 @@ function reload() {
 
 function stop() {
 	removeSpaceKeyListener();
-	if(timer) clearTimeout(timer);
+	if(timer) {
+		clearTimeout(timer);
+		timer = null;
+	}
 }
+
+var speed = 0;
+var prevSelfPos = {
+	x: 0,
+	y: 0,
+}
+var speed_timer = setInterval(function() {
+	var selfPos = {
+		x: game.activePlayer.netData.pos.x,
+		y: game.activePlayer.netData.pos.y,
+	}
+	var speed = Math.sqrt(Math.pow(Math.abs(selfPos.x - prevSelfPos.x), 2) + Math.pow(Math.abs(selfPos.y - prevSelfPos.y), 2));
+	console.log(speed);
+	prevSelfPos = selfPos;
+}, 1000);

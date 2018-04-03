@@ -12,7 +12,7 @@ var iterate = function() {
 var timer = {};
 function ticker() {
 	iterate();
-	timer = setTimeout(ticker, 30);
+	timer = setTimeout(ticker, 100);
 }
 
 function reload() {
