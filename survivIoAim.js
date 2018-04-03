@@ -87,6 +87,34 @@ var iterate = function() {
 	}
 }
 
+var addSpaceKeyListener = function() {
+	document.addEventListener("keydown", function(event) {
+		if(event.which == 32) {
+			game.input.mouseButton = true;
+		}
+	});
+
+	document.addEventListener("keyup", function(event) {
+		if(event.which == 32) {
+			game.input.mouseButton = false;
+		}
+	});
+}
+
+var removeSpaceKeyListener = function() {
+	document.removeEventListener("keydown", function(event) {
+		if(event.which == 32) {
+			game.input.mouseButton = true;
+		}
+	});
+
+	document.removeEventListener("keyup", function(event) {
+		if(event.which == 32) {
+			game.input.mouseButton = false;
+		}
+	});
+}
+
 var timer = {};
 function ticker() {
 	iterate();
@@ -101,3 +129,6 @@ function reload() {
 function stop() {
 	if(timer) clearTimeout(timer);
 }
+
+removeSpaceKeyListener();
+addSpaceKeyListener();
