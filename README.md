@@ -9,12 +9,12 @@
 8. Ok, start new solo game. Come back to the code, on the right side you must see "Paused on breakpoint". Below in the scope tab find variable `this`. Click it right mouse key, and choose "Store as global variable" in context menu.
 9. In the console on the bottom you must see `temp1`.
 10. Deactivate breakpoints and resume script execution (press ctrl + f8 and after press f8).
-11. Write in the console `var game = temp1`. Then paste [this](https://raw.githubusercontent.com/w3x731/survivIoAim/master/survivIoAim.js) code.
+11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code if you need aim + zoom or [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) code if you need only zoom.
 12. In the console you may type `reload()` for launch aim and `stop()` for stops the aim.
 
 Its must be worked. How to check script? Your person must automatically turn to the closest enemy.
 Update: On mouse click(shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.
-Update: 4x zoom by default
+Update: 4x zoom by default.
 If page has been updated, is necessary repeat this steps again.
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
