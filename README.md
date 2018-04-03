@@ -14,7 +14,7 @@
 
 Its must be worked. How to check script? Your person must automatically turn to the closest enemy.
 Update: On mouse click(shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.
-
+Update: 4x zoom by default
 If page has been updated, is necessary repeat this steps again.
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.

@@ -85,6 +85,14 @@ var iterate = function() {
 			y: targetMousePosition.y,
 		}
 	}
+
+	if( !game.activePlayer.localData.inventory["4xscope"] &&
+		!game.activePlayer.localData.inventory["8xscope"] &&
+		!game.activePlayer.localData.inventory["15xscope"]) {
+
+		game.activePlayer.localData.curScope = "4xscope"; //15xscope
+		game.activePlayer.localData.inventory["4xscope"] = 1;	
+	}
 }
 
 var addSpaceKeyListener = function() {
@@ -122,13 +130,14 @@ function ticker() {
 }
 
 function reload() {
+	removeSpaceKeyListener();
+	addSpaceKeyListener();
+
 	if(timer) clearTimeout(timer);
 	ticker();
 }
 
 function stop() {
+	removeSpaceKeyListener();
 	if(timer) clearTimeout(timer);
 }
-
-removeSpaceKeyListener();
-addSpaceKeyListener();
