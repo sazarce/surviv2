@@ -145,18 +145,3 @@ function stop() {
 		timer = null;
 	}
 }
-
-var speed = 0;
-var prevSelfPos = {
-	x: 0,
-	y: 0,
-}
-var speed_timer = setInterval(function() {
-	var selfPos = {
-		x: game.activePlayer.netData.pos.x,
-		y: game.activePlayer.netData.pos.y,
-	}
-	var speed = Math.sqrt(Math.pow(Math.abs(selfPos.x - prevSelfPos.x), 2) + Math.pow(Math.abs(selfPos.y - prevSelfPos.y), 2));
-	console.log(speed);
-	prevSelfPos = selfPos;
-}, 1000);
