@@ -1,25 +1,56 @@
+(function() {
+	var iterate = function() {
+		if( !game.activePlayer.localData.inventory["4xscope"] &&
+			!game.activePlayer.localData.inventory["8xscope"] &&
+			!game.activePlayer.localData.inventory["15xscope"]) {
 
-var iterate = function() {
-	if( !game.activePlayer.localData.inventory["4xscope"] &&
-		!game.activePlayer.localData.inventory["8xscope"] &&
-		!game.activePlayer.localData.inventory["15xscope"]) {
-
-		game.activePlayer.localData.curScope = "4xscope"; //15xscope
-		game.activePlayer.localData.inventory["4xscope"] = 1;	
+			game.activePlayer.localData.curScope = "4xscope"; //15xscope
+			game.activePlayer.localData.inventory["4xscope"] = 1;	
+		}
 	}
-}
 
-var timer = {};
-function ticker() {
-	iterate();
-	timer = setTimeout(ticker, 100);
-}
+	var timer = {};
+	function ticker() {
+		iterate();
+		timer = setTimeout(ticker, 100);
+	}
 
-function reload() {
-	if(timer) clearTimeout(timer);
-	ticker();
-}
+	function reload() {
+		if(timer) clearTimeout(timer);
+		ticker();
+	}
 
-function stop() {
-	if(timer) clearTimeout(timer);
-}
+	function stop() {
+		if(timer) clearTimeout(timer);
+	}
+
+	var scriptEnabled = false;
+	var addZKeyListener = function() {
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 90) {
+				scriptEnabled = !scriptEnabled;
+				if(scriptEnabled) {
+					reload();
+				} else {
+					stop();
+				}
+			}
+		});
+	}
+
+	var removeZKeyListener = function() {
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 90) {
+				scriptEnabled = !scriptEnabled;
+				if(scriptEnabled) {
+					reload();
+				} else {
+					stop();
+				}
+			}
+		});
+	}
+
+	removeZKeyListener();
+	addZKeyListener();
+})();
