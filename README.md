@@ -12,12 +12,11 @@
 11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code if you need aim + zoom or [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) code if you need only zoom.
 12. In the console you may type `reload()` for launch and `stop()` for stops the scripts.
 
-Its must be worked. How to check script? Your person must automatically turn to the closest enemy.
-If page has been updated, is necessary repeat this steps again.
+Its must be worked. How to check script? Your person must automatically turn to the closest enemy.  
+If page has been updated, is necessary repeat this steps again.  
 
-Update: On mouse click(shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.
-Update: 4x zoom by default.
-Update: Press and keep z key for disable script. Tune `forecastCoeff` for more accurate shooting.
-
+Update: On mouse click(shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.  
+Update: 4x zoom by default.  
+Update: Press and keep z key for disable script. Tune `forecastCoeff` variable for more accurate shooting.  
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
