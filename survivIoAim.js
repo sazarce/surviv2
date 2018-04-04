@@ -92,7 +92,7 @@ var updateState = function(detectedEnemies) {
 }
 
 // More shaken for more values
-var forecastCoeff = 10;
+var forecastCoeff = 7;
 var iterate = function() {
 	// check if we in game
 	if(!game.playing) return;
