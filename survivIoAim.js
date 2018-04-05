@@ -32,7 +32,7 @@
 				(!game.objectCreator.idToObj[playerIds[i]].netData.downed) &&
 				game.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
 				if(playerIds[i] != selfId) {
-					result.push(game.objectCreator.idToObj[playerIds[i]]);	
+					result[playerIds[i]] = game.objectCreator.idToObj[playerIds[i]];
 				}
 			}
 		}
@@ -45,24 +45,44 @@
 	}
 
 	var state = {
+		playerId: 0,
 		distance: Infinity,
 		radianAngle: 0,
 		prevRadianAngle: 0,
 		new: false,
 		timestamp: Date.now(),
 	}
+	var captureEnemyMode = false;
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
 		var enemyDistances = [];
 		var enemyRadianAngles = [];
+		var detectedEnemiesKeys = Object.keys(detectedEnemies);
 
-		if(!detectedEnemies.length) {
+		if(!detectedEnemiesKeys.length) {
 			state.new = false;
 			state.timestamp = Date.now();	
 			return;
 		} else {
-			for(var i = 0; i < detectedEnemies.length; i++) {
-				var enemyPos = detectedEnemies[i].netData.pos;
+			if(captureEnemyMode) {
+				if(detectedEnemies[state.playerId]) {
+					var enemyPos = detectedEnemies[state.playerId].netData.pos;
+
+					var distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
+					var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+
+					state.distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
+					state.prevRadianAngle = state.radianAngle;
+					state.radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+					state.new = true;
+					state.timestamp = Date.now();
+
+					return;
+				}
+			}
+
+			for(var i = 0; i < detectedEnemiesKeys.length; i++) {
+				var enemyPos = detectedEnemies[detectedEnemiesKeys[i]].netData.pos;
 
 				var distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
 				var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
@@ -72,15 +92,15 @@
 			}
 
 			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
-			if(!state[detectedEnemies[minimalDistanceEnemyIndex].__id]) {
+			if(state.playerId != detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id) {
 				state = {
+					playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
 					distance: enemyDistances[minimalDistanceEnemyIndex],
 					radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
 					prevRadianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
 					new: true,
 					timestamp: Date.now(),
 				}
-				state[detectedEnemies[minimalDistanceEnemyIndex].__id] = true;
 			} else {
 				state.distance = enemyDistances[minimalDistanceEnemyIndex];
 				state.prevRadianAngle = state.radianAngle;
@@ -204,6 +224,25 @@
 		});
 	}
 
+	var addOKeyListener = function() {
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
+	var removeOKeyListener = function() {
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
 	removeZKeyListener();
 	addZKeyListener();
+
+	removeOKeyListener();
+	addOKeyListener();
 })();

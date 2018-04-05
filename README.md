@@ -18,6 +18,7 @@ If page has been updated, is necessary repeat this steps again.
 Update: On mouse click (shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.  
 Update: ~4x zoom by default.  
 Update: Press Z key for enable/disable script. Tune `forecastCoeff` variable for more accurate shooting (0 - Infinity).  
+Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -42,5 +43,6 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел.  
 Обновление: Если у вас нет зума выше 2x, вы видете немного дальше.  
 Обновление: Чтобы включить/отключить скрипт, нажмите клавишу Z. Присваивая переменной `forecastCoeff` различные значения (от 0 до бесконечности) можно добиться увеличения количества попаданий при стрельбе.  
+Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.
