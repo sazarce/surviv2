@@ -112,7 +112,7 @@
 	}
 
 	// More shaken for more values
-	var forecastCoeff = 20;
+	var forecastCoeff = 24;
 	var iterate = function() {
 		// check if we in game
 		if(!game.playing) return;
