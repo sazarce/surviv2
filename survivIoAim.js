@@ -112,7 +112,7 @@
 	}
 
 	// More shaken for more values
-	var forecastCoeff = 5;
+	var forecastCoeff = 20;
 	var iterate = function() {
 		// check if we in game
 		if(!game.playing) return;
@@ -127,8 +127,8 @@
 			minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
 
 			var targetMousePosition = {};
-			targetMousePosition.x = halfScreenWidth + minScreenCircleRadius * Math.cos(state.radianAngle + forecastCoeff*(state.radianAngle - state.prevRadianAngle));
-			targetMousePosition.y = halfScreenHeight - minScreenCircleRadius * Math.sin(state.radianAngle + forecastCoeff*(state.radianAngle - state.prevRadianAngle));
+			targetMousePosition.x = halfScreenWidth + minScreenCircleRadius * Math.cos(state.radianAngle + state.distance/100 * forecastCoeff * (state.radianAngle - state.prevRadianAngle));
+			targetMousePosition.y = halfScreenHeight - minScreenCircleRadius * Math.sin(state.radianAngle + state.distance/100 * forecastCoeff * (state.radianAngle - state.prevRadianAngle));
 
 			if(targetMousePosition.x && targetMousePosition.y) {
 				game.input.mousePos = {
