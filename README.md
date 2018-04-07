@@ -14,6 +14,7 @@
 
 Its must be worked. How to check? Your person must automatically turn to the closest enemy.  
 If page has been updated, is necessary repeat this steps again.  
+You may create and join in rooms without updating page. If you wnat to join in room, in the game main menu paste the link on the room into browser address bar and press enter. In my case, page not updating, i see room and not need repeat above steps again.
 
 Update: You can shoot on space key.  
 Update: ~4x zoom by default.  
@@ -39,6 +40,7 @@ All actions you take at your own risk. The author is not responsible for the con
 
 Как проверить работу скрипта? Персонаж которым вы играете, должен автоматически поворачиваться в направлении противника как только он приблизится к вам (если вы используете аим).  
 Если вы обновите страницу, все шаги придется повторить. Но, вы можете переходить по комнатам просто вставив ссылку и нажав enter, так как вкладка не будет обновляться.
+Вы можете создать комнату или присоединиться к комнате без обновления страницы. Если вы хотите присоединиться к комнате, в главном меню игры вставьте ссылку на комнату и нажмите enter. В моем случае, страниа не обновляется, я вижу комнат и после запуска игрового процесса не нуждаюсь в повторении описанных выше шагов снова.
 
 Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел.  
 Обновление: Если у вас нет зума выше 2x, вы видете немного дальше.  
