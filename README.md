@@ -15,7 +15,7 @@
 Its must be worked. How to check? Your person must automatically turn to the closest enemy.  
 If page has been updated, is necessary repeat this steps again.  
 
-Update: On mouse click (shoot), person may turn in the cursor position direction. Its a problem. Now you can shoot on space key.  
+Update: You can shoot on space key.  
 Update: ~4x zoom by default.  
 Update: Press Z key for enable/disable script. Tune `forecastCoeff` variable for more accurate shooting (0 - Infinity).  
 Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.

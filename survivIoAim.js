@@ -44,6 +44,21 @@
 		return enemyDistances.indexOf(Math.min.apply(null, enemyDistances));
 	}
 
+	// More shaken for more values
+	var forecastCoeff = 26;
+	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
+		var halfScreenWidth = game.camera.screenWidth/2;
+		var halfScreenHeight = game.camera.screenHeight/2;
+
+		var minScreenCircleRadius = halfScreenHeight > halfScreenWidth ? halfScreenWidth : halfScreenHeight;
+		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
+
+		return {
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + distance/100 * forecastCoeff * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + distance/100 * forecastCoeff * (radianAngle - prevRadianAngle)),
+		}
+	}
+
 	var state = {
 		playerId: 0,
 		distance: Infinity,
@@ -51,6 +66,10 @@
 		prevRadianAngle: 0,
 		new: false,
 		timestamp: Date.now(),
+		targetMousePosition: {
+			x: 0,
+			y: 0,
+		}
 	}
 	var captureEnemyMode = false;
 	var updateState = function(detectedEnemies) {
@@ -76,6 +95,7 @@
 					state.radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 					state.new = true;
 					state.timestamp = Date.now();
+					state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
 
 					return;
 				}
@@ -101,41 +121,66 @@
 					new: true,
 					timestamp: Date.now(),
 				}
+				state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
 			} else {
 				state.distance = enemyDistances[minimalDistanceEnemyIndex];
 				state.prevRadianAngle = state.radianAngle;
 				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
 				state.new = true;
 				state.timestamp = Date.now();
+				state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
 			}
 		}
 	}
 
-	// More shaken for more values
-	var forecastCoeff = 24;
+	var defaultBOnMouseDown = function(event) {};
+	var gameStarted = function() {
+		var defaultBOnMouseDown = game.input.bOnMouseDown;
+		window.removeEventListener("mousedown", game.input.bOnMouseDown);
+		window.addEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.oldMouseButton = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
+	}
+
+	var gameStopped = function() {
+		window.removeEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.oldMouseButton = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
+	}
+
+	var gameStartedFuncCalled = false;
+	var gameStoppedFuncCalled = false;
 	var iterate = function() {
 		// check if we in game
-		if(!game.playing) return;
-		
+		if(!game.playing) {
+			if(!gameStoppedFuncCalled) {
+				gameStopped();
+				gameStoppedFuncCalled = true;
+			}
+			return;
+		} else {
+			if(!gameStartedFuncCalled) {
+				gameStarted();
+				gameStartedFuncCalled = true;
+			}
+		}
+
 		updateState(detectEnemies());
 		
 		if(state.new) {
-			var halfScreenWidth = game.camera.screenWidth/2;
-			var halfScreenHeight = game.camera.screenHeight/2;
-
-			var minScreenCircleRadius = halfScreenHeight > halfScreenWidth ? halfScreenWidth : halfScreenHeight;
-			minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
-
-			var targetMousePosition = {};
-			targetMousePosition.x = halfScreenWidth + minScreenCircleRadius * Math.cos(state.radianAngle + state.distance/100 * forecastCoeff * (state.radianAngle - state.prevRadianAngle));
-			targetMousePosition.y = halfScreenHeight - minScreenCircleRadius * Math.sin(state.radianAngle + state.distance/100 * forecastCoeff * (state.radianAngle - state.prevRadianAngle));
-
-			if(targetMousePosition.x && targetMousePosition.y) {
-				game.input.mousePos = {
-					x: targetMousePosition.x,
-					y: targetMousePosition.y,
-				}
-			}
+			game.input.mousePos = state.targetMousePosition;
 		}
 
 		if( !game.activePlayer.localData.inventory["4xscope"] &&
@@ -175,6 +220,22 @@
 		});
 	}
 
+	var addOKeyListener = function() {
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
+	var removeOKeyListener = function() {
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
 	var timer = null;
 	function ticker() {
 		iterate();
@@ -185,12 +246,17 @@
 		removeSpaceKeyListener();
 		addSpaceKeyListener();
 
+		removeOKeyListener();
+		addOKeyListener();
+
 		if(timer) clearTimeout(timer);
 		ticker();
 	}
 
 	function stop() {
 		removeSpaceKeyListener();
+		removeOKeyListener();		
+
 		if(timer) {
 			clearTimeout(timer);
 			timer = null;
@@ -224,25 +290,7 @@
 		});
 	}
 
-	var addOKeyListener = function() {
-		document.addEventListener("keyup", function(event) {
-			if(event.which == 79) {
-				captureEnemyMode = !captureEnemyMode;
-			}
-		});
-	}
-
-	var removeOKeyListener = function() {
-		document.removeEventListener("keyup", function(event) {
-			if(event.which == 79) {
-				captureEnemyMode = !captureEnemyMode;
-			}
-		});
-	}
-
 	removeZKeyListener();
 	addZKeyListener();
 
-	removeOKeyListener();
-	addOKeyListener();
 })();
