@@ -6,7 +6,7 @@
 5. Ok, select all the code (ctrl + a) and copy it to the sublime text editor (this editor shows the lines number).
 6. Find the `case p.Msg.Update:` line. Look at the number of this line and remember.
 7. Come back to the pretty view code (in browser). Scroll to the remembered line number. And click left side number of this line. Number of the line (or line below) must switch to blue color.
-8. Ok, start new solo game. Come back to the code, on the right side you must see "Paused on breakpoint". Below in the scope tab find variable `this`. Click it right mouse key, and choose "Store as global variable" in context menu.
+8. Ok, start new solo game. Come back to the code, on the right side you must see "Paused on breakpoint". Below in the scope tab, click "Local" and find variable `this`. Click it right mouse key, and choose "Store as global variable" in context menu.
 9. In the console on the bottom you must see `temp1`.
 10. Deactivate breakpoints and resume game script execution (press ctrl + f8 and after press f8).
 11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code if you need aim + zoom or [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) code if you need only zoom.
@@ -32,7 +32,7 @@ All actions you take at your own risk. The author is not responsible for the con
 5. Выделите весь код (ctrl + a) и скопируйте в текстовый редактор sublime text(или любой другой редактор, отображающий номера строк).
 6. С помощью поиска найдите строчку `case p.Msg.Update:`. Запомните номер этой строки.
 7. Вернитесь назад в браузер. Пролистайте код до номера строки из шага 6. Нажмите на номер этой строки (после нажатия, номер той строки на которую вы нажали или номер строки ниже должен стать помеченным синим флажком).
-8. Теперь переключитесь в окно игры, нажмите "Играть соло" и вернитесь назад в панель разработчика. В колонке справа, вверху вы увидите "Paused on breakpoint". Чуть ниже есть вкладка "Scope". Откройте ее и найдите переменную `this`. Нажмите на переменную правой кнопкой мыши и выбирите "Store as global variable" в контекстном меню.
+8. Теперь переключитесь в окно игры, нажмите "Играть соло" и вернитесь назад в панель разработчика. В колонке справа, вверху вы увидите "Paused on breakpoint". Чуть ниже есть вкладка "Scope". Откройте ее, нажмите "Local" и найдите переменную `this`. Нажмите на переменную правой кнопкой мыши и выбирите "Store as global variable" в контекстном меню.
 9. В консоли снизу вы увидите `temp1`.
 10. Выключите точки останова и возобновите выполнение скрипта (нажмите ctrl + f8 а затем f8).
 11. Напишите в консоли `var game = temp1`. Затем вставьте [этот](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) код, если вам нужен аим + зум или [этот](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) код, если вам нужен только зум.
