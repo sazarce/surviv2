@@ -16,7 +16,7 @@ Its must be worked. How to check? Your person must automatically turn to the clo
 If page has been updated, is necessary repeat this steps again.  
 You may create and join in rooms without updating page. If you wnat to join in room, in the game main menu paste the link on the room into browser address bar and press enter. In my case, page not updating, i see room and not need repeat above steps again.
 
-Update: You can shoot on space key.  
+Update: You can shoot on space key. **For me still unclear a fact, that sometimes when aim is used and player shoot on a left mouse key in the enemy, the bullet can fly on the other side. For automatic guns are first bullet may fly in the other side and rest bullets flying in enemy.**  
 Update: ~4x zoom by default.  
 Update: Press Z key for enable/disable script. Tune `forecastCoeff` variable for more accurate shooting (0 - Infinity).  
 Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.
@@ -42,7 +42,7 @@ All actions you take at your own risk. The author is not responsible for the con
 Если вы обновите страницу, все шаги придется повторить. Но, вы можете переходить по комнатам просто вставив ссылку и нажав enter, так как вкладка не будет обновляться.
 Вы можете создать комнату или присоединиться к комнате без обновления страницы. Если вы хотите присоединиться к комнате, в главном меню игры вставьте ссылку на комнату и нажмите enter. В моем случае, страниа не обновляется, я вижу комнату и после запуска игрового процесса не нуждаюсь в повторении описанных выше шагов снова.
 
-Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел.  
+Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел. **Иногда, во время стрельбы с использованием аима рядом с противником с помощью левой кнопки мыши, первая пуля может полететь в направлении курсора, а не в сторону врага. Но в большинстве случаев стрельба левой кнопкой мыши с использованием аима работает корректно.**  
 Обновление: Если у вас нет зума выше 2x, вы видете немного дальше.  
 Обновление: Чтобы включить/отключить скрипт, нажмите клавишу Z. Присваивая переменной `forecastCoeff` различные значения (от 0 до бесконечности) можно добиться увеличения количества попаданий при стрельбе.  
 Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).

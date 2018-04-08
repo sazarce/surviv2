@@ -140,7 +140,7 @@
 		window.addEventListener("mousedown", function(event) {
 			if(!event.button && state.new) {
 				game.input.mousePos = state.targetMousePosition;
-				game.input.oldMouseButton = false;
+				game.input.mouseButtonOld = false;
 				game.input.mouseButton = true;
 			} else {
 				defaultBOnMouseDown(event);
@@ -152,7 +152,7 @@
 		window.removeEventListener("mousedown", function(event) {
 			if(!event.button && state.new) {
 				game.input.mousePos = state.targetMousePosition;
-				game.input.oldMouseButton = false;
+				game.input.mouseButtonOld = false;
 				game.input.mouseButton = true;
 			} else {
 				defaultBOnMouseDown(event);
