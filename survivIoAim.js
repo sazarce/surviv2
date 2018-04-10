@@ -134,14 +134,9 @@
 	}
 
 	var defaultBOnMouseDown = function(event) {};
-	var defaultBOnMouseMove = function(event) {};
 	var gameStarted = function() {
 		var defaultBOnMouseDown = game.input.bOnMouseDown;
-		var defaultBOnMouseMove = game.input.bOnMouseMove;
-
 		window.removeEventListener("mousedown", game.input.bOnMouseDown);
-		window.removeEventListener("mousemove", game.input.bOnMouseMove);
-
 		window.addEventListener("mousedown", function(event) {
 			if(!event.button && state.new) {
 				game.input.mousePos = state.targetMousePosition;
@@ -149,12 +144,6 @@
 				game.input.mouseButton = true;
 			} else {
 				defaultBOnMouseDown(event);
-			}
-		});
-		
-		window.addEventListener("mousemove", function(event) {
-			if(!state.new) {
-				defaultBOnMouseMove(event);
 			}
 		});
 	}
@@ -169,17 +158,10 @@
 				defaultBOnMouseDown(event);
 			}
 		});
-
-		window.removeEventListener("mousemove", function(event) {
-			if(!state.new) {
-				defaultBOnMouseMove(event);
-			}
-		});		
 	}
-	
+
 	var gameStartedFuncCalled = false;
 	var gameStoppedFuncCalled = false;
-	var bOnMouseMoveRemoved = false;
 	var iterate = function() {
 		// check if we in game
 		if(!game.playing) {
@@ -210,10 +192,9 @@
 		}
 	}
 
-	
 	var addSpaceKeyListener = function() {
 		document.addEventListener("keydown", function(event) {
-			if(event.which == 32) {	
+			if(event.which == 32) {
 				game.input.mouseButton = true;
 			}
 		});
@@ -226,13 +207,13 @@
 	}
 
 	var removeSpaceKeyListener = function() {
-		document.addEventListener("keydown", function(event) {
-			if(event.which == 32) {	
+		document.removeEventListener("keydown", function(event) {
+			if(event.which == 32) {
 				game.input.mouseButton = true;
 			}
 		});
 
-		document.addEventListener("keyup", function(event) {
+		document.removeEventListener("keyup", function(event) {
 			if(event.which == 32) {
 				game.input.mouseButton = false;
 			}
