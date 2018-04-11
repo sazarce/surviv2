@@ -83,8 +83,7 @@
 			state.timestamp = Date.now();	
 			return;
 		} else {
-			if(captureEnemyMode) {
-				console.log(state.playerId);
+			if(captureEnemyMode) {				
 				if(detectedEnemies[state.playerId]) {
 					var enemyPos = detectedEnemies[state.playerId].netData.pos;
 
