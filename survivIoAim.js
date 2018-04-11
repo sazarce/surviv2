@@ -84,6 +84,7 @@
 			return;
 		} else {
 			if(captureEnemyMode) {
+				console.log(state.playerId);
 				if(detectedEnemies[state.playerId]) {
 					var enemyPos = detectedEnemies[state.playerId].netData.pos;
 
@@ -133,48 +134,11 @@
 		}
 	}
 
-	var defaultBOnMouseDown = function(event) {};
-	var gameStarted = function() {
-		var defaultBOnMouseDown = game.input.bOnMouseDown;
-		window.removeEventListener("mousedown", game.input.bOnMouseDown);
-		window.addEventListener("mousedown", function(event) {
-			if(!event.button && state.new) {
-				game.input.mousePos = state.targetMousePosition;
-				game.input.mouseButtonOld = false;
-				game.input.mouseButton = true;
-			} else {
-				defaultBOnMouseDown(event);
-			}
-		});
-	}
-
-	var gameStopped = function() {
-		window.removeEventListener("mousedown", function(event) {
-			if(!event.button && state.new) {
-				game.input.mousePos = state.targetMousePosition;
-				game.input.mouseButtonOld = false;
-				game.input.mouseButton = true;
-			} else {
-				defaultBOnMouseDown(event);
-			}
-		});
-	}
-
-	var gameStartedFuncCalled = false;
-	var gameStoppedFuncCalled = false;
 	var iterate = function() {
 		// check if we in game
-		if(!game.playing) {
-			if(!gameStoppedFuncCalled) {
-				gameStopped();
-				gameStoppedFuncCalled = true;
-			}
+		if(game.gameOver) {
+			disableCheat();
 			return;
-		} else {
-			if(!gameStartedFuncCalled) {
-				gameStarted();
-				gameStartedFuncCalled = true;
-			}
 		}
 
 		updateState(detectEnemies());
@@ -190,7 +154,7 @@
 			game.activePlayer.localData.curScope = "4xscope"; //15xscope
 			game.activePlayer.localData.inventory["4xscope"] = 1;	
 		}
-	}
+	}	
 
 	var addSpaceKeyListener = function() {
 		document.addEventListener("keydown", function(event) {
@@ -238,40 +202,100 @@
 
 	var timer = null;
 	function ticker() {
-		iterate();
 		timer = setTimeout(ticker, 10);
-	}
+		iterate();
+	}	
 
-	function reload() {
+	var defaultBOnMouseDown = function(event) {};
+	var defaultBOnMouseMove = function(event) {};
+
+	var bindCheatListeners = function() {
+		defaultBOnMouseDown = game.input.bOnMouseDown;
+		defaultBOnMouseMove = game.input.bOnMouseMove;
+
+		window.removeEventListener("mousedown", game.input.bOnMouseDown);
+		window.removeEventListener("mousemove", game.input.bOnMouseMove);
+
+		window.addEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
+
+		window.addEventListener("mousemove", function(event) {
+			if(!state.new) {
+				defaultBOnMouseMove(event);
+			}
+		});
+
 		removeSpaceKeyListener();
 		addSpaceKeyListener();
 
 		removeOKeyListener();
 		addOKeyListener();
-
-		if(timer) clearTimeout(timer);
-		ticker();
 	}
 
-	function stop() {
-		removeSpaceKeyListener();
-		removeOKeyListener();		
+	var unbindCheatListeners = function() {
+		window.removeEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
 
+		window.removeEventListener("mousemove", function(event) {
+			if(!state.new) {
+				defaultBOnMouseMove(event);
+			}
+		});
+
+		window.addEventListener("mousedown", defaultBOnMouseDown);
+		window.addEventListener("mousemove", defaultBOnMouseMove);
+
+		removeSpaceKeyListener();
+		removeOKeyListener();
+	}
+
+	var cheatEnabled = false;
+	function enableCheat() {
+		if(!game.gameOver) {			
+			bindCheatListeners();
+			cheatEnabled = true;
+
+			if(timer) {
+				clearTimeout(timer);
+				timer = null;
+			}
+
+			ticker();
+		}
+	}
+
+	function disableCheat() {
 		if(timer) {
 			clearTimeout(timer);
 			timer = null;
 		}
+
+		unbindCheatListeners();
+		cheatEnabled = false;
+		captureEnemyMode = false;
 	}
 
-	var scriptEnabled = false;
 	var addZKeyListener = function() {
 		document.addEventListener("keyup", function(event) {
 			if(event.which == 90) {
-				scriptEnabled = !scriptEnabled;
-				if(scriptEnabled) {
-					reload();
+				if(cheatEnabled) {
+					disableCheat();
 				} else {
-					stop();
+					enableCheat();
 				}
 			}
 		});
@@ -280,17 +304,16 @@
 	var removeZKeyListener = function() {
 		document.removeEventListener("keyup", function(event) {
 			if(event.which == 90) {
-				scriptEnabled = !scriptEnabled;
-				if(scriptEnabled) {
-					reload();
+				if(cheatEnabled) {
+					disableCheat();
 				} else {
-					stop();
+					enableCheat();
 				}
 			}
 		});
 	}
 
 	removeZKeyListener();
-	addZKeyListener();
+	addZKeyListener();	
 
 })();
