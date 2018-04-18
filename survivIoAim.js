@@ -45,7 +45,7 @@
 	}
 
 	// More shaken for more values
-	var forecastCoeff = 50;
+	var forecastCoeff = 40;
 	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
 		var halfScreenWidth = game.camera.screenWidth/2;
 		var halfScreenHeight = game.camera.screenHeight/2;
