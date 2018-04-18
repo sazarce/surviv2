@@ -45,7 +45,7 @@
 	}
 
 	// More shaken for more values
-	var forecastCoeff = 40;
+	var forecastCoeff = 0.41;
 	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
 		var halfScreenWidth = game.camera.screenWidth/2;
 		var halfScreenHeight = game.camera.screenHeight/2;
@@ -54,8 +54,8 @@
 		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + distance/100 * forecastCoeff * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + distance/100 * forecastCoeff * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + distance * forecastCoeff * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + distance * forecastCoeff * (radianAngle - prevRadianAngle)),
 		}
 	}
 
@@ -266,6 +266,7 @@
 	function enableCheat() {
 		if(!game.gameOver) {			
 			bindCheatListeners();
+			game.map.display.topObstacle.alpha = 0.5;
 			cheatEnabled = true;
 
 			if(timer) {
@@ -284,6 +285,7 @@
 		}
 
 		unbindCheatListeners();
+		game.map.display.topObstacle.alpha = 1;
 		cheatEnabled = false;
 		captureEnemyMode = false;
 	}
