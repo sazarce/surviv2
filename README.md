@@ -20,6 +20,10 @@ Update: You can shoot on space key. **For me still unclear a fact, that sometime
 Update: ~4x zoom by default.  
 Update: Press Z key for enable/disable script. Tune `forecastCoeff` variable for more accurate shooting (0 - Infinity).  
 Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.
+Update: Chrome extension available. How to install:
+1. Open [chrome://extensions/](chrome://extensions/) in chrome or chromium
+2. Drag the survivIoAimChromeExtension folder into opened extension window.
+Now, when you open surviv.io game tab, just press Z key to enable aim.
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -46,5 +50,9 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Если у вас нет зума выше 2x, вы видете немного дальше.  
 Обновление: Чтобы включить/отключить скрипт, нажмите клавишу Z. Присваивая переменной `forecastCoeff` различные значения (от 0 до бесконечности) можно добиться увеличения количества попаданий при стрельбе.  
 Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).
+Обновление: Доступно расширение-аддон для браузера хром или хромиум. Установка:
+1. Откройте [chrome://extensions/](chrome://extensions/) в Google Chrome или Chromium
+2. Перетащите папку survivIoAimChromeExtension в открытое окно расширений Chrome.
+Теперь аим будет подключаться автоматически при открытии вкладки с игрой. Для включения, нажмите клавишу Z.
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.
