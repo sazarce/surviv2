@@ -1,239 +1,58 @@
 (function() {
 
 	var bullets = {
-		bullet_mp5: {
-			damage: 11,
-			obstacleDamage: 1,
-			falloff: .8,
-			distance: 100,
-			speed: 85,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16704198,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_ak47: {
-			damage: 13.5,
-			obstacleDamage: 1,
-			falloff: .9,
-			distance: 200,
-			speed: 100,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_scar: {
-			damage: 15,
-			obstacleDamage: 1,
-			falloff: .85,
-			distance: 175,
-			speed: 108,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_mosin: {
-			damage: 64,
-			obstacleDamage: 1.5,
-			falloff: .95,
-			distance: 500,
-			speed: 178,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .2,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_m39: {
-			damage: 24.5,
-			obstacleDamage: 1,
-			falloff: .9,
-			distance: 400,
-			speed: 125,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_shotgun: {
-			damage: 12,
-			obstacleDamage: 1,
-			falloff: .3,
-			speed: 66,
-			distance: 29,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16702684,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_m9: {
-			damage: 12,
-			obstacleDamage: 1,
-			falloff: .7,
-			speed: 85,
-			distance: 100,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16704198,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_ot38: {
-			damage: 26,
-			obstacleDamage: 1,
-			falloff: .75,
-			speed: 112,
-			distance: 125,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .09,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_mac10: {
-			damage: 9.25,
-			obstacleDamage: 1,
-			falloff: .6,
-			distance: 50,
-			speed: 75,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16704198,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_ump9: {
-			damage: 15,
-			obstacleDamage: 1,
-			falloff: .75,
-			distance: 100,
-			speed: 100,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16704198,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_dp28: {
-			damage: 14,
-			obstacleDamage: 1.5,
-			falloff: .9,
-			distance: 225,
-			speed: 110,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 12965630,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_glock: {
-			damage: 9,
-			obstacleDamage: 1,
-			falloff: .5,
-			speed: 70,
-			distance: 44,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 16704198,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_famas: {
-			damage: 17,
-			obstacleDamage: 1,
-			falloff: .8,
-			distance: 150,
-			speed: 110,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 11141010,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_hk416: {
-			damage: 11,
-			obstacleDamage: 1,
-			falloff: .85,
-			distance: 175,
-			speed: 105,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 11141010,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_mk12: {
-			damage: 19.5,
-			obstacleDamage: 1,
-			falloff: .9,
-			distance: 400,
-			speed: 132,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 11141010,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		bullet_m249: {
-			damage: 14,
-			obstacleDamage: 1.75,
-			falloff: .9,
-			distance: 220,
-			speed: 125,
-			variance: 0,
-			shrapnel: !1,
-			tracerColor: 11141010,
-			tracerWidth: .1,
-			tracerLength: .8,
-			tracerAlpha: 1
-		},
-		shrapnel_barrel: {
-			damage: 20,
-			obstacleDamage: 1,
-			falloff: 1,
-			speed: 20,
-			distance: 8,
-			variance: 1.5,
-			shrapnel: !0,
-			tracerColor: 3355443,
-			tracerWidth: .125,
-			tracerLength: .5,
-			tracerAlpha: 1
-		},
-		shrapnel_frag: {
-			damage: 20,
-			obstacleDamage: 1,
-			falloff: 1,
-			speed: 20,
-			distance: 8,
-			variance: 1.5,
-			shrapnel: !0,
-			tracerColor: 3355443,
-			tracerWidth: .125,
-			tracerLength: .5,
-			tracerAlpha: 1
+		var bullets = {
+			bullet_mp5: {
+				speed: 85,
+			},
+			bullet_ak47: {
+				speed: 100,
+			},
+			bullet_scar: {
+				speed: 108,
+			},
+			bullet_mosin: {
+				speed: 178,
+			},
+			bullet_m39: {
+				speed: 125,
+			},
+			bullet_m870: {
+				speed: 66,
+			},
+			bullet_mp220: {
+				speed: 66,
+			},
+			bullet_m9: {
+				speed: 85,
+			},
+			bullet_ot38: {
+				speed: 112,
+			},
+			bullet_mac10: {
+				speed: 75,
+			},
+			bullet_ump9: {
+				speed: 100,
+			},
+			bullet_dp28: {
+				speed: 110,
+			},
+			bullet_glock: {
+				speed: 70,
+			},
+			bullet_famas: {
+				speed: 110,
+			},
+			bullet_hk416: {
+				speed: 105,
+			},
+			bullet_mk12: {
+				speed: 132,
+			},
+			bullet_m249: {
+				speed: 125,
+			},
 		}
 	}
 
