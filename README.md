@@ -19,11 +19,11 @@ You may create and join in rooms without updating page. If you wnat to join in r
 Update: You can shoot on space key. **For me still unclear a fact, that sometimes when aim is used and player shoot on a left mouse key in the enemy, the bullet can fly on the other side. For automatic guns are first bullet may fly in the other side and rest bullets flying in enemy. Try to restart browser if you see this behaviour.**  
 Update: ~4x zoom by default.  
 Update: Press Z key for enable/disable script. Tune `forecastCoeff` variable for more accurate shooting (0 - Infinity).  
-Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.
+Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.  
 Update: Chrome extension available. How to install:
 1. Open `chrome://extensions/` in chrome or chromium.
 2. Drag the [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) folder into opened extension window.
-Now, when you open surviv.io game tab, just press Z key to enable aim.
+Now, when you start the game, just press Z key to enable aim.
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -49,10 +49,10 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел. **Иногда, во время стрельбы с использованием аима рядом с противником с помощью левой кнопки мыши, первая пуля может полететь в направлении курсора, а не в сторону врага. Но в большинстве случаев стрельба левой кнопкой мыши с использованием аима работает корректно. Попробуйте перезапустить браузер если вы наблюдаете подобную проблему.**  
 Обновление: Если у вас нет зума выше 2x, вы видете немного дальше.  
 Обновление: Чтобы включить/отключить скрипт, нажмите клавишу Z. Присваивая переменной `forecastCoeff` различные значения (от 0 до бесконечности) можно добиться увеличения количества попаданий при стрельбе.  
-Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).
-Обновление: Доступно расширение-аддон для браузера хром или хромиум. Установка:
-1. Откройте `chrome://extensions/` в Google Chrome или Chromium.
-2. Перетащите папку [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) в открытое окно расширений Chrome.
-Теперь аим будет подключаться автоматически при открытии вкладки с игрой. Для включения, нажмите клавишу Z.
+Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).  
+Обновление: Доступно расширение-аддон для браузера Google Chrome или Chromium. Установка:
+1. Откройте окно расширений перейдя по ссылке `chrome://extensions/`.
+2. Перетащите папку [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) в открытое окно расширений.
+Теперь аим будет подключаться автоматически при открытии вкладки с игрой. Для его включения, нажмите клавишу Z.
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.

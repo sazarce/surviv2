@@ -212,7 +212,7 @@
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
 			game.activePlayer.localData.curScope = "8xscope"; //15xscope
-		game.activePlayer.localData.inventory["8xscope"] = 1;	
+			game.activePlayer.localData.inventory["8xscope"] = 1;	
 	}
 }	
 
