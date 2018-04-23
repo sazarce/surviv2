@@ -1,11 +1,10 @@
 (function() {
 	var iterate = function() {
-		if( !game.activePlayer.localData.inventory["4xscope"] &&
-			!game.activePlayer.localData.inventory["8xscope"] &&
+		if( !game.activePlayer.localData.inventory["8xscope"] &&
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
-			game.activePlayer.localData.curScope = "4xscope"; //15xscope
-			game.activePlayer.localData.inventory["4xscope"] = 1;	
+			game.activePlayer.localData.curScope = "8xscope"; //15xscope
+			game.activePlayer.localData.inventory["8xscope"] = 1;
 		}
 	}
 
