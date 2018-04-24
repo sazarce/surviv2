@@ -131,7 +131,7 @@ object-assign
 	}
 
 	// More shaken for more values
-	var forecastCoeff = 1;
+	var forecastCoeff = 1; // 1.5
 	var bulletCoeff = 1;
 	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
 		var halfScreenWidth = game.camera.screenWidth/2;
@@ -141,14 +141,14 @@ object-assign
 		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
 
 		if(bullets["bullet_" + game.activePlayer.weapType]) {
-			bulletCoeff = 90/bullets["bullet_" + game.activePlayer.weapType].speed;
+			bulletCoeff = 90/bullets["bullet_" + game.activePlayer.weapType].speed; // 50
 		} else {
 			bulletCoeff = 1;
 		}
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * ( forecastCoeff/100000000 * Math.pow(distance, 5) + forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * ( forecastCoeff/100000000 * Math.pow(distance, 5) + forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * ( forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * ( forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
 		}
 	}
 
