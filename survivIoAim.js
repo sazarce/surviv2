@@ -52,7 +52,10 @@
 		},
 		bullet_m249: {
 			speed: 125
-		}
+		},
+		bullet_deagle: {
+			speed: 112
+		}		
 	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
@@ -228,6 +231,7 @@
 			game.input.mousePos = state.targetMousePosition;
 		}
 
+		// No longer works
 		if( !game.activePlayer.localData.inventory["8xscope"] &&
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
@@ -353,11 +357,10 @@
 				clearTimeout(timer);
 				timer = null;
 			}
-
 			ticker();
 		}
 	}
-
+  
 	function disableCheat() {
 		if(timer) {
 			clearTimeout(timer);
