@@ -14,7 +14,7 @@
 	"content_security_policy":  "script-src 'self' 'unsafe-eval'; object-src 'self'",
 
 	"web_accessible_resources": [
-		"js/app.8c89d899.js"
+		"js/app.57df691c.js"
 	],
 		
 	"background": {

@@ -1,3 +1,4 @@
+
 (function() {
 
 	var bullets = {
@@ -57,11 +58,11 @@
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
 		var dy = ey - cy;
 		var dx = ex - cx;
-	  	var theta = Math.atan2(dy, dx); // range (-PI, PI]
-	  // theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
-	  // if (theta < 0) theta = 360 + theta; // range [0, 360)
+		var theta = Math.atan2(dy, dx); // range (-PI, PI]
+		// theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
+		// if (theta < 0) theta = 360 + theta; // range [0, 360)
 
-	  return theta;
+		return theta;
 	}
 
 	var getSelfPos = function() {
@@ -95,12 +96,31 @@
 		return result;
 	}
 
+	// six coeffs
+	var a = [
+		0,
+		1,
+		1/100,
+		1/10000,
+		1/1000000,
+		1/100000000
+	];
+	var calculateHornerPoly = function(distance) {
+		var result = distance * a[a.length - 1];
+
+		for(var i = a.length - 2; i > 0; i--) {
+			result = distance * (a[i] + result);
+		}
+
+		result += a[0];
+
+		return result;
+	}
+
 	var getMinimalDistanceIndex = function(enemyDistances) {
 		return enemyDistances.indexOf(Math.min.apply(null, enemyDistances));
 	}
 
-	// More shaken for more values
-	var forecastCoeff = 1;
 	var bulletCoeff = 1;
 	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
 		var halfScreenWidth = game.camera.screenWidth/2;
@@ -110,14 +130,14 @@
 		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
 
 		if(bullets["bullet_" + game.activePlayer.weapType]) {
-			bulletCoeff = 90/bullets["bullet_" + game.activePlayer.weapType].speed;
+			bulletCoeff = 90/bullets["bullet_" + game.activePlayer.weapType].speed; // 50
 		} else {
 			bulletCoeff = 1;
 		}
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * ( forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * ( forecastCoeff/1000000 * Math.pow(distance, 4) + forecastCoeff/10000 * Math.pow(distance, 3) + forecastCoeff/100 * Math.pow(distance, 2) + forecastCoeff * distance )/4 * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/4.5 * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/4.5 * (radianAngle - prevRadianAngle)),
 		}
 	}
 
@@ -213,169 +233,168 @@
 
 			game.activePlayer.localData.curScope = "8xscope"; //15xscope
 			game.activePlayer.localData.inventory["8xscope"] = 1;	
+		}
+	}	
+
+	var addSpaceKeyListener = function() {
+		document.addEventListener("keydown", function(event) {
+			if(event.which == 32) {
+				game.input.mouseButton = true;
+			}
+		});
+
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 32) {
+				game.input.mouseButton = false;
+			}
+		});
 	}
-}	
 
-var addSpaceKeyListener = function() {
-	document.addEventListener("keydown", function(event) {
-		if(event.which == 32) {
-			game.input.mouseButton = true;
+	var removeSpaceKeyListener = function() {
+		document.removeEventListener("keydown", function(event) {
+			if(event.which == 32) {
+				game.input.mouseButton = true;
+			}
+		});
+
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 32) {
+				game.input.mouseButton = false;
+			}
+		});
+	}
+
+	var addOKeyListener = function() {
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
+	var removeOKeyListener = function() {
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 79) {
+				captureEnemyMode = !captureEnemyMode;
+			}
+		});
+	}
+
+	var timer = null;
+	function ticker() {
+		timer = setTimeout(ticker, 10);
+		iterate();
+	}	
+
+	var defaultBOnMouseDown = function(event) {};
+	var defaultBOnMouseMove = function(event) {};
+
+	var bindCheatListeners = function() {
+		defaultBOnMouseDown = game.input.bOnMouseDown;
+		defaultBOnMouseMove = game.input.bOnMouseMove;
+
+		window.removeEventListener("mousedown", game.input.bOnMouseDown);
+		window.removeEventListener("mousemove", game.input.bOnMouseMove);
+
+		window.addEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
+
+		window.addEventListener("mousemove", function(event) {
+			if(!state.new) {
+				defaultBOnMouseMove(event);
+			}
+		});
+
+		removeSpaceKeyListener();
+		addSpaceKeyListener();
+
+		removeOKeyListener();
+		addOKeyListener();
+	}
+
+	var unbindCheatListeners = function() {
+		window.removeEventListener("mousedown", function(event) {
+			if(!event.button && state.new) {
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
+			} else {
+				defaultBOnMouseDown(event);
+			}
+		});
+
+		window.removeEventListener("mousemove", function(event) {
+			if(!state.new) {
+				defaultBOnMouseMove(event);
+			}
+		});
+
+		window.addEventListener("mousedown", defaultBOnMouseDown);
+		window.addEventListener("mousemove", defaultBOnMouseMove);
+
+		removeSpaceKeyListener();
+		removeOKeyListener();
+	}
+
+	var cheatEnabled = false;
+	function enableCheat() {
+		if(!game.gameOver) {			
+			bindCheatListeners();
+			cheatEnabled = true;
+
+			if(timer) {
+				clearTimeout(timer);
+				timer = null;
+			}
+
+			ticker();
 		}
-	});
+	}
 
-	document.addEventListener("keyup", function(event) {
-		if(event.which == 32) {
-			game.input.mouseButton = false;
-		}
-	});
-}
-
-var removeSpaceKeyListener = function() {
-	document.removeEventListener("keydown", function(event) {
-		if(event.which == 32) {
-			game.input.mouseButton = true;
-		}
-	});
-
-	document.removeEventListener("keyup", function(event) {
-		if(event.which == 32) {
-			game.input.mouseButton = false;
-		}
-	});
-}
-
-var addOKeyListener = function() {
-	document.addEventListener("keyup", function(event) {
-		if(event.which == 79) {
-			captureEnemyMode = !captureEnemyMode;
-		}
-	});
-}
-
-var removeOKeyListener = function() {
-	document.removeEventListener("keyup", function(event) {
-		if(event.which == 79) {
-			captureEnemyMode = !captureEnemyMode;
-		}
-	});
-}
-
-var timer = null;
-function ticker() {
-	timer = setTimeout(ticker, 10);
-	iterate();
-}	
-
-var defaultBOnMouseDown = function(event) {};
-var defaultBOnMouseMove = function(event) {};
-
-var bindCheatListeners = function() {
-	defaultBOnMouseDown = game.input.bOnMouseDown;
-	defaultBOnMouseMove = game.input.bOnMouseMove;
-
-	window.removeEventListener("mousedown", game.input.bOnMouseDown);
-	window.removeEventListener("mousemove", game.input.bOnMouseMove);
-
-	window.addEventListener("mousedown", function(event) {
-		if(!event.button && state.new) {
-			game.input.mousePos = state.targetMousePosition;
-			game.input.mouseButtonOld = false;
-			game.input.mouseButton = true;
-		} else {
-			defaultBOnMouseDown(event);
-		}
-	});
-
-	window.addEventListener("mousemove", function(event) {
-		if(!state.new) {
-			defaultBOnMouseMove(event);
-		}
-	});
-
-	removeSpaceKeyListener();
-	addSpaceKeyListener();
-
-	removeOKeyListener();
-	addOKeyListener();
-}
-
-var unbindCheatListeners = function() {
-	window.removeEventListener("mousedown", function(event) {
-		if(!event.button && state.new) {
-			game.input.mousePos = state.targetMousePosition;
-			game.input.mouseButtonOld = false;
-			game.input.mouseButton = true;
-		} else {
-			defaultBOnMouseDown(event);
-		}
-	});
-
-	window.removeEventListener("mousemove", function(event) {
-		if(!state.new) {
-			defaultBOnMouseMove(event);
-		}
-	});
-
-	window.addEventListener("mousedown", defaultBOnMouseDown);
-	window.addEventListener("mousemove", defaultBOnMouseMove);
-
-	removeSpaceKeyListener();
-	removeOKeyListener();
-}
-
-var cheatEnabled = false;
-function enableCheat() {
-	if(!game.gameOver) {			
-		bindCheatListeners();
-		game.map.display.topObstacle.alpha = 0.5;
-		cheatEnabled = true;
-
+	function disableCheat() {
 		if(timer) {
 			clearTimeout(timer);
 			timer = null;
 		}
 
-		ticker();
-	}
-}
-
-function disableCheat() {
-	if(timer) {
-		clearTimeout(timer);
-		timer = null;
+		unbindCheatListeners();
+		cheatEnabled = false;
+		captureEnemyMode = false;
 	}
 
-	unbindCheatListeners();
-	game.map.display.topObstacle.alpha = 1;
-	cheatEnabled = false;
-	captureEnemyMode = false;
-}
-
-var addZKeyListener = function() {
-	document.addEventListener("keyup", function(event) {
-		if(event.which == 90) {
-			if(cheatEnabled) {
-				disableCheat();
-			} else {
-				enableCheat();
+	var addZKeyListener = function() {
+		document.addEventListener("keyup", function(event) {
+			if(event.which == 90) {
+				if(cheatEnabled) {
+					disableCheat();
+				} else {
+					enableCheat();
+					console.log(game);
+				}
 			}
-		}
-	});
-}
+		});
+	}
 
-var removeZKeyListener = function() {
-	document.removeEventListener("keyup", function(event) {
-		if(event.which == 90) {
-			if(cheatEnabled) {
-				disableCheat();
-			} else {
-				enableCheat();
+	var removeZKeyListener = function() {
+		document.removeEventListener("keyup", function(event) {
+			if(event.which == 90) {
+				if(cheatEnabled) {
+					disableCheat();
+				} else {
+					enableCheat();
+				}
 			}
-		}
-	});
-}
+		});
+	}
 
-removeZKeyListener();
-addZKeyListener();	
+	removeZKeyListener();
+	addZKeyListener();	
 
 })();

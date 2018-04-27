@@ -1,3 +1,4 @@
+
 (function() {
 	var iterate = function() {
 		if( !game.activePlayer.localData.inventory["8xscope"] &&
