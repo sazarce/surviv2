@@ -22,7 +22,12 @@ Update: Press O key for enable/disable "capture mode". In this mode if you have 
 Update: Chrome extension available. How to install:
 1. Open `chrome://extensions/` in chrome or chromium.
 2. Drag the [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) (for aim) or [survivIoZoomChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoZoomChromeExtension) (for zoom) folder into opened extension window.
-Now you dont need to perform steps above, when you start the game, just press Z key to enable cheat.
+Now you dont need to perform steps above, when you start the game, just press Z key to enable cheat.  
+Update: Simple [patcher](https://github.com/w3x731/survivIoAim/tree/master/patcher) for game client added. How to use (need Node.js):
+1. [Download](https://github.com/w3x731/survivIoAim/archive/master.zip) this repo.
+2. In cmd, move into [patcher](https://github.com/w3x731/survivIoAim/tree/master/patcher) folder and type `npm install`.
+3. Move game client `app.x.js` into [app](https://github.com/w3x731/survivIoAim/tree/master/app) folder.
+4. Configure the index.js (variable `appPrint` must contain a `X` string from `app.X.js` file name) file and type `node index.js`. Its automatically update chrome extension files (replace the game client lines and move patched file into extensions path).
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -51,6 +56,11 @@ All actions you take at your own risk. The author is not responsible for the con
 Обновление: Доступно расширение-аддон для браузера Google Chrome или Chromium. Установка:
 1. Откройте окно расширений перейдя по ссылке `chrome://extensions/`.
 2. Перетащите папку [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) (для аима) или [survivIoZoomChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoZoomChromeExtension) (для зума) в открытое окно расширений.
-Теперь вам не нужно выполнять шаги описанные выше. Для включения, просто нажмите клавишу Z во время игры.
+Теперь вам не нужно выполнять шаги описанные выше. Для включения, просто нажмите клавишу Z во время игры.  
+Обновление: Добавлен простой [патчер](https://github.com/w3x731/survivIoAim/tree/master/patcher) клиента игры. Как использовать (нужен Node.js):
+1. [Скачайте](https://github.com/w3x731/survivIoAim/archive/master.zip) этот репозиторий.
+2. В командной строке переместитесь в папку [patcher](https://github.com/w3x731/survivIoAim/tree/master/patcher) и напишите `npm install`.
+3. Положите клиент игры `app.x.js` в папку [app](https://github.com/w3x731/survivIoAim/tree/master/app). Чтобы получить клиент, надо повторить шаги с 1 по 3 из руководства вначале. Как только вы найдете файл `app.x.js` сохраните его.
+4. Настройте файл index.js. Для этого, переменной `appPrint` присвойте значение `x` из имени файла `app.x.js` (строка из 8 символов) и напишите `node index.js`. Скрипт автоматически обновит файлы расширений Chrome (заменит строки в клиенте игры и переместит пропатченный клиент в папки расширений).
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.
