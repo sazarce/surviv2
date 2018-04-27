@@ -76,7 +76,10 @@ object-assign
 		},
 		bullet_m249: {
 			speed: 125
-		}
+		},
+		bullet_deagle: {
+			speed: 112
+		}	
 	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
