@@ -21,7 +21,7 @@ function safePatch(name, options) {
 var aimScriptPath = "../survivIoAim.js";
 var zoomScriptPath = "../survivIoZoom.js";
 
-var appPrint = "57df691c";
+var appPrint = "b619a0d4";
 var appFolderPath = "../app/";
 var appPath = appFolderPath + "app." + appPrint + ".js";
 var patchedAppPath = appFolderPath + "patched/app." + appPrint + ".js";
