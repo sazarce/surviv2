@@ -51,7 +51,10 @@
 		},
 		bullet_m249: {
 			speed: 125
-		}
+		},
+		bullet_deagle: {
+			speed: 112
+		}		
 	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
@@ -208,6 +211,7 @@
 			game.input.mousePos = state.targetMousePosition;
 		}
 
+		// No longer works
 		if( !game.activePlayer.localData.inventory["8xscope"] &&
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
@@ -327,7 +331,7 @@ var cheatEnabled = false;
 function enableCheat() {
 	if(!game.gameOver) {			
 		bindCheatListeners();
-		game.map.display.topObstacle.alpha = 0.5;
+		//game.map.display.topObstacle.alpha = 0.5; // No longer works
 		cheatEnabled = true;
 
 		if(timer) {
@@ -346,7 +350,7 @@ function disableCheat() {
 	}
 
 	unbindCheatListeners();
-	game.map.display.topObstacle.alpha = 1;
+	//game.map.display.topObstacle.alpha = 1; // No longer works
 	cheatEnabled = false;
 	captureEnemyMode = false;
 }
