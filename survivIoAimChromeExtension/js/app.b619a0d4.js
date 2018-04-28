@@ -164,8 +164,8 @@ object-assign
 		}
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.3 * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.3 * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.4 * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.4 * (radianAngle - prevRadianAngle)),
 		}
 	}
 
@@ -245,7 +245,7 @@ object-assign
 
 	var iterate = function() {
 		// check if we in game
-		if(game.gameOver) {
+		if(game.gameOver !== false) {
 			disableCheat();
 			return;
 		}
@@ -374,7 +374,7 @@ object-assign
 
 	var cheatEnabled = false;
 	function enableCheat() {
-		if(!game.gameOver) {			
+		if(game.gameOver === false) {			
 			bindCheatListeners();
 			cheatEnabled = true;
 
