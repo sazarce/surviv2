@@ -221,7 +221,7 @@
 
 	var iterate = function() {
 		// check if we in game
-		if(game.gameOver) {
+		if(game.gameOver !== false) {
 			disableCheat();
 			return;
 		}
@@ -350,7 +350,7 @@
 
 	var cheatEnabled = false;
 	function enableCheat() {
-		if(!game.gameOver) {			
+		if(game.gameOver === false) {			
 			bindCheatListeners();
 			cheatEnabled = true;
 
