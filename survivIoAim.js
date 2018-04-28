@@ -100,6 +100,7 @@
 	}
 
 	// six coeffs
+	// max effective distance is 64
 	var a = [
 		0,
 		1,
@@ -139,8 +140,8 @@
 		}
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.5 * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.5 * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.4 * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3.4 * (radianAngle - prevRadianAngle)),
 		}
 	}
 
@@ -231,7 +232,7 @@
 			game.input.mousePos = state.targetMousePosition;
 		}
 
-		// No longer works
+		// No longer effective works
 		if( !game.activePlayer.localData.inventory["8xscope"] &&
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
