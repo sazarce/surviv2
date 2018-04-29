@@ -4,12 +4,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 		var xhr = new XMLHttpRequest();
 
 		return {
-			redirectUrl: chrome.runtime.getURL("js/app.b619a0d4.js")
+			redirectUrl: chrome.runtime.getURL("js/app.8f05fe0e.js")
 		}
 	},
 	// filters
 	{
-		urls: ["http://surviv.io/js/app.b619a0d4.js"],
+		urls: ["http://surviv.io/js/app.8f05fe0e.js"],
 		types: ["script"]
 	},
 	// extraInfoSpec
