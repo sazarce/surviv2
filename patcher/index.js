@@ -42,7 +42,13 @@ fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('fini
 		to: 'alpha:0.75',
 	};
 
-	if(safePatch("Scope", scopeOptions) && safePatch("Alpha", alphaOptions)) {
+	var smokeAlpha = {
+		files: patchedAppPath,
+		from: /d.sprite.alpha=p/g,
+		to: 'd.sprite.alpha=0.1',
+	}
+
+	if(safePatch("Scope", scopeOptions) && safePatch("Alpha", alphaOptions) && safePatch("Smoke alpha", smokeAlpha)) {
 		// Modifying extension files if patched successfully
 		// Modifying aim extension
 		fs.createReadStream(patchedAppPath).pipe(fs.createWriteStream(aimExtensionFolderPath + "js/app." + appPrint + ".js")).on('finish', function() {
