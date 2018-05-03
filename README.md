@@ -1,7 +1,7 @@
 ## How to install
 ### Installing Chrome/Chromium extension
 1. Open `chrome://extensions/` in chrome or chromium.
-2. Drag the [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) (for aim) or [survivIoZoomChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoZoomChromeExtension) (for zoom, now its not effectively cheat) folder into opened extension window.
+2. Drag and drop the [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension)(for aim) folder into opened extension window.
 
 When you start the game, just press `Z` key to enable cheat.
 
@@ -16,8 +16,8 @@ When you start the game, just press `Z` key to enable cheat.
 8. Ok, start new solo game. Come back to the code, on the right side you must see `Paused on breakpoint`. Below in the scope tab, click `Local` and find variable `this`. Click it right mouse key, and choose `Store as global variable` in a context menu.
 9. In the console on the bottom you must see `temp1`.
 10. Deactivate breakpoints and resume game script execution (press `ctrl + f8` and after press `f8`).
-11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code if you need aim + zoom or [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) code if you need only zoom (now its not effectively cheat).
-12. In the game, press `Z` for enable or disable script.
+11. Write in the console `var game = temp1`. Then paste [this](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) code for aim.
+12. In the game, press `Z` for enable or disable cheat.
 
 Its must be worked. How to check? Your person must automatically turn to the closest enemy.  
 If page has been updated, is necessary repeat this steps again.  
@@ -39,7 +39,7 @@ All actions you take at your own risk. The author is not responsible for the con
 ## Руководство на русском языке
 ### Установка расширения для Chrome/Chromium
 1. Откройте окно расширений перейдя по ссылке `chrome://extensions/`.
-2. Перетащите папку [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) (для аима) или [survivIoZoomChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoZoomChromeExtension) (для зума, в данный момент не эффективен) в открытое окно расширений.
+2. Перетащите папку [survivIoAimChromeExtension](https://github.com/w3x731/survivIoAim/tree/master/survivIoAimChromeExtension) (для аима) в открытое окно расширений.
 
 Когда вы начнете игру, нажмите клавишу `Z` чтобы включить чит.
 
@@ -54,7 +54,7 @@ All actions you take at your own risk. The author is not responsible for the con
 8. Теперь переключитесь в окно игры, нажмите `Играть соло` и вернитесь назад в панель разработчика. В колонке справа, вверху вы увидите `Paused on breakpoint`. Чуть ниже есть вкладка `Scope`. Откройте ее, нажмите `Local` и найдите переменную `this`. Нажмите на переменную правой кнопкой мыши и выбирите `Store as global variable` в контекстном меню.
 9. В консоли снизу вы увидите `temp1`.
 10. Выключите точки останова и возобновите выполнение скрипта (нажмите `ctrl + f8` а затем `f8`).
-11. Напишите в консоли `var game = temp1`. Затем вставьте [этот](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) код, если вам нужен аим + зум или [этот](https://github.com/w3x731/survivIoAim/blob/master/survivIoZoom.js) код, если вам нужен только зум (на данный момент не эффективен).
+11. Напишите в консоли `var game = temp1`. Затем вставьте [этот](https://github.com/w3x731/survivIoAim/blob/master/survivIoAim.js) код, если вам нужен аим.
 12. После чего нажмите `Enter`. Во время игры нажмите клавишу `Z` для включения/отключения скрипта.
 
 Как проверить работу скрипта? Персонаж которым вы играете, должен автоматически поворачиваться в направлении противника как только он приблизится к вам (если вы используете аим).  

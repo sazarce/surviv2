@@ -19,15 +19,13 @@ function safePatch(name, options) {
 }
 
 var aimScriptPath = "../survivIoAim.js";
-var zoomScriptPath = "../survivIoZoom.js";
 
 var appPrint = "8f05fe0e";
 var appFolderPath = "../app/";
 var appPath = appFolderPath + "app." + appPrint + ".js";
 var patchedAppPath = appFolderPath + "patched/app." + appPrint + ".js";
 
-var aimExtensionFolderPath = "../survivIoAimChromeExtension/";
-var zoomExtensionFolderPath = "../survivIoZoomChromeExtension/";
+var aimExtensionFolderPath = "../survivIoAimChromeExtension/"
 
 fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('finish', function() {
 	var scopeOptions = {
@@ -69,26 +67,5 @@ fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('fini
 
 		safePatch("Aim extension background", aimExtensionBackgroundOptions);
 		safePatch("Aim extension manifest", aimExtensionManifestOptions);
-
-		// Modifying zoom extension
-
-		fs.createReadStream(patchedAppPath).pipe(fs.createWriteStream(zoomExtensionFolderPath + "js/app." + appPrint + ".js")).on('finish', function() {
-			fs.createReadStream(zoomScriptPath).pipe(fs.createWriteStream(zoomExtensionFolderPath + "js/app." + appPrint + ".js", { flags:'a' }));
-		});
-
-		var zoomExtensionBackgroundOptions = {
-			files: zoomExtensionFolderPath + "background.js",
-			from: /app..+.js/g,
-			to: "app." + appPrint + ".js",	
-		}
-
-		var zoomExtensionManifestOptions = {
-			files: zoomExtensionFolderPath + "manifest.json",
-			from: /app..+.js/g,
-			to: "app." + appPrint + ".js",	
-		}
-
-		safePatch("Zoom extension background", zoomExtensionBackgroundOptions);
-		safePatch("Zoom extension manifest", zoomExtensionManifestOptions);
 	}
 });
