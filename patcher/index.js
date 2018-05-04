@@ -1,3 +1,4 @@
+
 var fs = require('fs');
 var replace = require('replace-in-file');
 
@@ -30,8 +31,8 @@ var aimExtensionFolderPath = "../survivIoAimChromeExtension/"
 fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('finish', function() {
 	var scopeOptions = {
 		files: patchedAppPath,
-		from: /case p.Msg.Update:/g,
-		to: 'case p.Msg.Update: window.game = this;',
+		from: /this.activePlayer=null,/g,
+		to: 'this.activePlayer=null,game=this,',
 	};
 
 	var alphaOptions = {
@@ -49,9 +50,25 @@ fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('fini
 	if(safePatch("Scope", scopeOptions) && safePatch("Alpha", alphaOptions) && safePatch("Smoke alpha", smokeAlpha)) {
 		// Modifying extension files if patched successfully
 		// Modifying aim extension
+
 		fs.createReadStream(patchedAppPath).pipe(fs.createWriteStream(aimExtensionFolderPath + "js/app." + appPrint + ".js")).on('finish', function() {
-			fs.createReadStream(aimScriptPath).pipe(fs.createWriteStream(aimExtensionFolderPath + "js/app." + appPrint + ".js", { flags:'a' }));
-		});
+			fs.createReadStream(aimScriptPath).pipe(fs.createWriteStream(aimExtensionFolderPath + "js/app." + appPrint + ".js", { flags:'a' }).on('finish', function() {
+				var codeScopeStartOptions = {
+					files: aimExtensionFolderPath + "js/app." + appPrint + ".js",
+					from: /webpackJsonp/g,
+					to: '(function(){\nvar game=null;\nwebpackJsonp',
+				}
+
+				var codeScopeEndOptions = {
+					files: aimExtensionFolderPath + "js/app." + appPrint + ".js",
+					from: /}\)\(\);/g,
+					to: '})();\n})();',
+				}
+
+				safePatch("Code scope start", codeScopeStartOptions);
+				safePatch("Code scope end", codeScopeEndOptions);	
+			}));
+		});	
 
 		var aimExtensionBackgroundOptions = {
 			files: aimExtensionFolderPath + "background.js",
