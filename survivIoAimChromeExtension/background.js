@@ -2,12 +2,12 @@
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 		return {
-			redirectUrl: chrome.runtime.getURL("js/app.8f05fe0e.js")
+			redirectUrl: chrome.runtime.getURL("js/app.0ca5c0d7.js")
 		}
 	},
 	// filters
 	{
-		urls: ["http://surviv.io/js/app.8f05fe0e.js"],
+		urls: ["http://surviv.io/js/app.0ca5c0d7.js"],
 		types: ["script"]
 	},
 	// extraInfoSpec

@@ -21,7 +21,7 @@ function safePatch(name, options) {
 
 var aimScriptPath = "../survivIoAim.js";
 
-var appPrint = "8f05fe0e";
+var appPrint = "0ca5c0d7";
 var appFolderPath = "../app/";
 var appPath = appFolderPath + "app." + appPrint + ".js";
 var patchedAppPath = appFolderPath + "patched/app." + appPrint + ".js";
@@ -43,7 +43,7 @@ fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('fini
 
 	var smokeAlpha = {
 		files: patchedAppPath,
-		from: /d.sprite.alpha=p/g,
+		from: /d.sprite.alpha=u/g,
 		to: 'd.sprite.alpha=0.1',
 	}
 
