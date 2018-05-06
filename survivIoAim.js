@@ -232,8 +232,8 @@
 			game.input.mousePos = state.targetMousePosition;
 		}
 
-		// No longer effective works
-		if( !game.activePlayer.localData.inventory["8xscope"] &&
+		if( game.activePlayer &&
+			!game.activePlayer.localData.inventory["8xscope"] &&
 			!game.activePlayer.localData.inventory["15xscope"]) {
 
 			game.activePlayer.localData.curScope = "8xscope"; //15xscope
