@@ -7,7 +7,9 @@ chrome.webRequest.onBeforeRequest.addListener(
 	},
 	// filters
 	{
-		urls: ["http://surviv.io/js/app.0ca5c0d7.js"],
+		urls: [
+			"*://*.surviv.io/js/app.0ca5c0d7.js",
+		],
 		types: ["script"]
 	},
 	// extraInfoSpec
