@@ -45,9 +45,18 @@ fs.createReadStream(appPath).pipe(fs.createWriteStream(patchedAppPath)).on('fini
 		files: patchedAppPath,
 		from: /d.sprite.alpha=u/g,
 		to: 'd.sprite.alpha=0.1',
-	}
+	};
 
-	if(safePatch("Scope", scopeOptions) && safePatch("Alpha", alphaOptions) && safePatch("Smoke alpha", smokeAlpha)) {
+	var bushAlpha = {
+		files: patchedAppPath,
+		from: /alpha:.97/g,
+		to: 'alpha:0.5',		
+	};
+
+	if(	safePatch("Scope", scopeOptions) && 
+		safePatch("Alpha", alphaOptions) && 
+		safePatch("Smoke alpha", smokeAlpha) &&
+		safePatch("Bush alpha", bushAlpha)) {
 		// Modifying extension files if patched successfully
 		// Modifying aim extension
 
