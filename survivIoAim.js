@@ -55,6 +55,9 @@
 		},
 		bullet_deagle: {
 			speed: 112
+		},
+		bullet_vector: {
+			speed: 88
 		}		
 	}
 
