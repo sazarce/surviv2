@@ -164,38 +164,24 @@ function patchClientCode(gameClientCode) {
 }
 
 chrome.webRequest.onBeforeRequest.addListener(
-	function(details) {				
-		if(details.url.match(/manifest/)) {
-			chrome.storage.local.get(['mainfestCode'], function(mainfestCode) {
-				if(mainfestCode.mainfestCode === undefined) {
-		        	console.log("Executing xhr manifest request...");
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", details.url, true);
-					xhr.send();
+	function(details) {
+		chrome.tabs.query(
+			{ 
+				currentWindow: true, 
+				active: true 
+			},
+			function(tabArray) {
+				if(!tabArray.length) {
+					console.log("Can't find a game tab. Please go to the game tab and refresh it.")
+					return;
+				}
 
-					xhr.onreadystatechange = function() {
-						if (xhr.readyState != 4) return;
-						if (this.status != 200) {
-							console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							return;
-						}
-
-						chrome.storage.local.set({
-							'mainfestCode': xhr.responseText,
-							'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
-						}, function() {
-							console.log("Manifest code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: xhr.responseText
-							});
-							return;
-						});
-					}
-				} else {
-					chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
-						if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
-							console.log("Executing xhr manifest update request...");
+				var currentTabId = tabArray[0].id;
+				
+				if(details.url.match(/manifest/)) {
+					chrome.storage.local.get(['mainfestCode'], function(mainfestCode) {
+						if(mainfestCode.mainfestCode === undefined) {
+				        	console.log("Executing xhr manifest request...");
 							var xhr = new XMLHttpRequest();
 							xhr.open("GET", details.url, true);
 							xhr.send();
@@ -203,8 +189,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 							xhr.onreadystatechange = function() {
 								if (xhr.readyState != 4) return;
 								if (this.status != 200) {
-									console.log("Err update manifest file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
+									console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
 									return;
 								}
 
@@ -212,54 +198,54 @@ chrome.webRequest.onBeforeRequest.addListener(
 									'mainfestCode': xhr.responseText,
 									'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
 								}, function() {
-									console.log("Manifest code updated.");
-									chrome.tabs.executeScript(details.tabId, {
+									console.log("Manifest code stored.");
+									chrome.tabs.executeScript(currentTabId, {
 										code: xhr.responseText
 									});
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: mainfestCode.mainfestCode
+							chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
+								if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
+									console.log("Executing xhr manifest update request...");
+									var xhr = new XMLHttpRequest();
+									xhr.open("GET", details.url, true);
+									xhr.send();
+
+									xhr.onreadystatechange = function() {
+										if (xhr.readyState != 4) return;
+										if (this.status != 200) {
+											console.log("Err update manifest file. Page will be reloaded after 5 seconds...");
+											setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
+											return;
+										}
+
+										chrome.storage.local.set({
+											'mainfestCode': xhr.responseText,
+											'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
+										}, function() {
+											console.log("Manifest code updated.");
+											chrome.tabs.executeScript(currentTabId, {
+												code: xhr.responseText
+											});
+											return;
+										});
+									}
+								} else {
+									chrome.tabs.executeScript(currentTabId, {
+										code: mainfestCode.mainfestCode
+									});
+								}
 							});
 						}
 					});
 				}
-			});
-		}
 
-		if(details.url.match(/vendor/)) {
-			chrome.storage.local.get(['vendorCode'], function(vendorCode) {
-				if(vendorCode.vendorCode === undefined) {
-		        	console.log("Executing xhr vendor request...");
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", details.url, true);
-					xhr.send();
-
-					xhr.onreadystatechange = function() {
-						if (xhr.readyState != 4) return;
-						if (this.status != 200) {
-							console.log("Err getting vendor file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							return;
-						}
-
-						chrome.storage.local.set({
-							'vendorCode': xhr.responseText,
-							'vendorVer': details.url.match(/vendor\.(.*)\.js/)[1]
-						}, function() {
-							console.log("Vendor code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: xhr.responseText
-							});
-							return;
-						});
-					}
-				} else {
-					chrome.storage.local.get(['vendorVer'], function(vendorVer) {
-						if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
-							console.log("Executing xhr vendor update request...");
+				if(details.url.match(/vendor/)) {
+					chrome.storage.local.get(['vendorCode'], function(vendorCode) {
+						if(vendorCode.vendorCode === undefined) {
+				        	console.log("Executing xhr vendor request...");
 							var xhr = new XMLHttpRequest();
 							xhr.open("GET", details.url, true);
 							xhr.send();
@@ -267,8 +253,8 @@ chrome.webRequest.onBeforeRequest.addListener(
 							xhr.onreadystatechange = function() {
 								if (xhr.readyState != 4) return;
 								if (this.status != 200) {
-									console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
+									console.log("Err getting vendor file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
 									return;
 								}
 
@@ -276,56 +262,54 @@ chrome.webRequest.onBeforeRequest.addListener(
 									'vendorCode': xhr.responseText,
 									'vendorVer': details.url.match(/vendor\.(.*)\.js/)[1]
 								}, function() {
-									console.log("Vendor code updated.");
-									chrome.tabs.executeScript(details.tabId, {
+									console.log("Vendor code stored.");
+									chrome.tabs.executeScript(currentTabId, {
 										code: xhr.responseText
 									});
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: vendorCode.vendorCode
+							chrome.storage.local.get(['vendorVer'], function(vendorVer) {
+								if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
+									console.log("Executing xhr vendor update request...");
+									var xhr = new XMLHttpRequest();
+									xhr.open("GET", details.url, true);
+									xhr.send();
+
+									xhr.onreadystatechange = function() {
+										if (xhr.readyState != 4) return;
+										if (this.status != 200) {
+											console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
+											setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
+											return;
+										}
+
+										chrome.storage.local.set({
+											'vendorCode': xhr.responseText,
+											'vendorVer': details.url.match(/vendor\.(.*)\.js/)[1]
+										}, function() {
+											console.log("Vendor code updated.");
+											chrome.tabs.executeScript(currentTabId, {
+												code: xhr.responseText
+											});
+											return;
+										});
+									}
+								} else {
+									chrome.tabs.executeScript(currentTabId, {
+										code: vendorCode.vendorCode
+									});
+								}
 							});
 						}
 					});
 				}
-			});
-		}
 
-		if(details.url.match(/app/)) {
-			chrome.storage.local.get(['appCode'], function(appCode) {
-				if(appCode.appCode === undefined) {
-		        	console.log("Executing xhr app request...");
-					var xhr = new XMLHttpRequest();
-					xhr.open("GET", details.url, true);
-					xhr.send();
-
-					xhr.onreadystatechange = function() {
-						if (xhr.readyState != 4) return;
-						if (this.status != 200) {
-							console.log("Err getting app file. Page will be reloaded after 5 seconds...");
-							setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
-							return;
-						}
-
-						var patchedClientCode = patchClientCode(xhr.responseText);
-						chrome.storage.local.set({
-							'appCode': patchedClientCode,
-							'appVer': details.url.match(/app\.(.*)\.js/)[1]
-						}, function() {
-							console.log("App code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: patchedClientCode
-							});
-
-							return;
-						});
-					}
-				} else {
-					chrome.storage.local.get(['appVer'], function(appVer) {
-						if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
-							console.log("Executing xhr app update request...");
+				if(details.url.match(/app/)) {
+					chrome.storage.local.get(['appCode'], function(appCode) {
+						if(appCode.appCode === undefined) {
+				        	console.log("Executing xhr app request...");
 							var xhr = new XMLHttpRequest();
 							xhr.open("GET", details.url, true);
 							xhr.send();
@@ -333,31 +317,62 @@ chrome.webRequest.onBeforeRequest.addListener(
 							xhr.onreadystatechange = function() {
 								if (xhr.readyState != 4) return;
 								if (this.status != 200) {
-									console.log("Err update app file. Page will be reloaded after 5 seconds...");
-									setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
+									console.log("Err getting app file. Page will be reloaded after 5 seconds...");
+									setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
 									return;
 								}
 
+								var patchedClientCode = patchClientCode(xhr.responseText);
 								chrome.storage.local.set({
-									'appCode': xhr.responseText,
+									'appCode': patchedClientCode,
 									'appVer': details.url.match(/app\.(.*)\.js/)[1]
 								}, function() {
-									console.log("App code updated.");
-									chrome.tabs.executeScript(details.tabId, {
-										code: xhr.responseText
+									console.log("App code stored.");
+									chrome.tabs.executeScript(currentTabId, {
+										code: patchedClientCode
 									});
+
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: appCode.appCode
+							chrome.storage.local.get(['appVer'], function(appVer) {
+								if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
+									console.log("Executing xhr app update request...");
+									var xhr = new XMLHttpRequest();
+									xhr.open("GET", details.url, true);
+									xhr.send();
+
+									xhr.onreadystatechange = function() {
+										if (xhr.readyState != 4) return;
+										if (this.status != 200) {
+											console.log("Err update app file. Page will be reloaded after 5 seconds...");
+											setTimeout(function(){chrome.tabs.reload(currentTabId, null, null)}, 5000);
+											return;
+										}
+
+										chrome.storage.local.set({
+											'appCode': xhr.responseText,
+											'appVer': details.url.match(/app\.(.*)\.js/)[1]
+										}, function() {
+											console.log("App code updated.");
+											chrome.tabs.executeScript(currentTabId, {
+												code: xhr.responseText
+											});
+											return;
+										});
+									}
+								} else {
+									chrome.tabs.executeScript(currentTabId, {
+										code: appCode.appCode
+									});
+								}
 							});
 						}
 					});
 				}
-			});
-		}
+			}
+		);
 
 		return {
 			cancel: true
