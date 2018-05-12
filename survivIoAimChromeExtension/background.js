@@ -383,7 +383,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 		urls: [
 			"*://*.surviv.io/js/manifest.*.js",
 			"*://*.surviv.io/js/vendor.*.js",
-			"*://*.surviv.io/js/app.*.js"
+			"*://*.surviv.io/js/app.*.js",
+			"*://*.surviv2.io/js/manifest.*.js",
+			"*://*.surviv2.io/js/vendor.*.js",
+			"*://*.surviv2.io/js/app.*.js",
+			"*://*.2dbattleroyale.com/js/manifest.*.js",
+			"*://*.2dbattleroyale.com/js/vendor.*.js",
+			"*://*.2dbattleroyale.com/js/app.*.js"
 		],
 		types: ["script"]
 	},
