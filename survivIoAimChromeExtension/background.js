@@ -345,13 +345,14 @@ chrome.webRequest.onBeforeRequest.addListener(
 									return;
 								}
 
+								var patchedClientCode = patchClientCode(xhr.responseText);
 								chrome.storage.local.set({
-									'appCode': xhr.responseText,
+									'appCode': patchedClientCode,
 									'appVer': details.url.match(/app\.(.*)\.js/)[1]
 								}, function() {
 									console.log("App code updated.");
 									chrome.tabs.executeScript(details.tabId, {
-										code: xhr.responseText
+										code: patchedClientCode
 									});
 									return;
 								});
