@@ -36,18 +36,6 @@ var aimInit = function() {
 		scopeZoomRadius["4xscope"] = 68;
 	}
 
-	// var pieTimer = findVariable("PieTimer", exports);
-	// if(pieTimer) {
-	// 	pieTimer(function(){}, 60, "Test", true);
-	// }
-
-	var smokeBarn = findVariable("SmokeBarn", exports);
-	if(smokeBarn) {
-
-	}
-
-	var gameObjectTypes = findVariable("Type", exports);
-
 	var defsParticles = findVariable("Defs", exports);
 	if(defsParticles) {
 		Object.keys(defsParticles).forEach(function(key) {
@@ -56,20 +44,6 @@ var aimInit = function() {
 					item.alpha = 0.5;
 				});
 			}
-		});
-	}
-
-	var creator = findVariable("Creator", exports);//getobjbyid
-	var pool = findVariable("Pool", exports);//getpool
-	var lootBarn = findVariable("LootBarn", exports);//getCLosestloot
-	var playerBarn = findVariable("PlayerBarn", exports);//getPlayerById
-
-	var emoteData = findVariable("EmoteData", exports);
-	if(emoteData) {
-		Object.keys(emoteData).forEach(function(key, index) {
-			emoteData[key].twitterFollow = false;
-			emoteData[key].youtubeSubscribe = false;
-			emoteData[key].facebookLike = false;
 		});
 	}
 
