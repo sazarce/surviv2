@@ -6,7 +6,7 @@ function patchManifestCode(manifestCode) {
 			from: /var ([a-z])={},(.*?);/g,
 			to: 'var $1={},$2;window.exports=$1;'
 		}
-	]
+	];
 
 	patchRules.forEach(function(item) {
 		if(item.from.test(manifestCode)) {
@@ -20,62 +20,22 @@ function patchManifestCode(manifestCode) {
 	return manifestCode;
 }
 
-function findVariable(name, exports) {
-	var keys = Object.keys(exports);
-	for(var i = 0; i < keys.length; i++) {
-		if(exports[keys[i]].exports[name]) {
-			return exports[keys[i]].exports[name];
-		}
-	}
-
-	return null;
-}
-
 function wrapAppCode(appCode) {
-	var variables = "";
-	
-	variables += "var game=null;var exports=null;var bullets=null;";
+	var variables = 'var game=null;var exports=window.exports;var bullets=null;';
 
-	appCode = variables + appCode;
-
-	appCode = '(function(){' + appCode;
-
-	appCode = appCode + '\n(' + aimInit + ')();';
-	appCode = appCode + '\nif(window.exports){exports=window.exports;delete window.exports;};'
-
-	appCode = appCode +'\nbullets=(' + findVariable + ')("bullets",exports);'
-
-	appCode = appCode + '})();';
+	appCode = '(function(){' + variables + appCode + '\n(' + aimInit + ')();' + '})();';
 
 	return appCode;
 }
 
-function patchAppCode(gameClientCode) {
-	gameClientCode = wrapAppCode(gameClientCode);
+function patchAppCode(appCode) {
+	appCode = wrapAppCode(appCode);
 
 	var patchRules = [
-		/*
-			{
-				name: "Export sended data",
-				from: /sendMessage:function\(([a-z]),([a-z])\){/g,
-				to: 'sendMessage:function($1,$2){reviewSendedMessage($1,$2);'
-			},
-			{
-				name: "Export game update info",
-				from: /processGameUpdate:function\(([a-z])\){/g,
-				to: 'processGameUpdate:function($1){reviewGameUpdateInfo($1);'
-			},
-
-			{
-				name: "Export joined msg",
-				from: /case ([a-z]).Msg.Joined:(.*?);([a-z]).deserialize\(([a-z])\),/g,
-				to: 'case $1.Msg.Joined:$2;$3.deserialize($4),reviewJoinedMsg($3),'
-			},
-		*/
 		{
 			name: "Export game scope",
-			from: /this\.activePlayer=null\,/g,
-			to: 'this\.activePlayer=null\,game=this\,'
+			from: /init:function\(\){var ([a-z]),([a-z])=this.pixi.renderer/,
+			to: 'init:function(){game=this;var $1,$2=this.pixi.renderer'
 		},
 
 		{
@@ -102,131 +62,19 @@ function patchAppCode(gameClientCode) {
 			name: "Tree_02 alpha",
 			from: /sprite\:\"img\/map\/map\-tree\-03\.svg\"\,residue\:\"img\/map\/map\-tree\-res\.svg\"\,scale\:1\,alpha\:1/g,
 			to: 'sprite:"img/map/map-tree-03.svg",residue:"img/map/map-tree-res.svg",scale:1,alpha:0.5'
-		},
-		{
-			name: "Shak alpha",
-			from: /sprite\:\"img\/map\/map\-building\-shack\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-shack-ceiling.svg",scale:.5,alpha:0.1'
-		},
-		{
-			name: "Outhouse alpha",
-			from: /sprite\:\"img\/map\/map\-building\-outhouse\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-outhouse-ceiling.svg",scale:.5,alpha:0.5'
-		},
-		{
-			name: "Panicroom alpha",
-			from: /sprite:"img\/map\/map\-building\-panicroom\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-panicroom-ceiling.svg",scale:.5,alpha:0.5'			
-		},
-		{
-			name: "Barn_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-barn\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-barn-ceiling.svg",scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bank_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-bank\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-bank-ceiling.svg",scale:.5,alpha:0.5'				
-		},
-		{
-			name: "Vault_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-vault\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-vault-ceiling.svg",scale:.5,alpha:0.5'
-		},
-		{
-			name: "Police_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-police\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-police-ceiling.svg",scale:.5,alpha:0.5'
-		},
-		{
-			name: "House_red_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-house\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-house-ceiling.svg",scale:.5,alpha:0.5'			
-		},
-		{
-			name: "Saferoom_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-saferoom\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-saferoom-ceiling.svg",scale:.5,alpha:0.5'			
-		},
-		{
-			name: "Mansion_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-mansion\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-mansion-ceiling.svg",scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_egg_sublevel_01 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-egg\-chamber\-ceiling\-01\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-egg-chamber-ceiling-01.svg",scale:.5,alpha:0.5'	
-		},
-		{
-			name: "Bunker_hydra_01 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-hydra\-ceiling\-01\.svg\"\,pos\:L\.create\(25\.25\,3\.5\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-hydra-ceiling-01.svg",pos:L.create(25.25,3.5),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_hydra_sublevel_01 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-hydra\-chamber\-ceiling\-01\.svg\"\,pos\:L\.create\(7\,2\)\,scale\:\.5\,alpha\:1\,tint\:6250335\}\,\{sprite\:\"img\/map\/map\-bunker\-hydra\-chamber\-ceiling\-02\.svg\"\,pos\:L\.create\(\-13\.5\,\-76\.5\)\,scale\:\.5\,alpha\:1\,tint\:6250335\}\,\{sprite\:\"img\/map\/map\-bunker\-hydra\-chamber\-ceiling\-03\.svg\"\,pos\:L\.create\(38\,\-62\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-hydra-chamber-ceiling-01.svg",pos:L.create(7,2),scale:.5,alpha:0.5,tint:6250335},{sprite:"img/map/map-bunker-hydra-chamber-ceiling-02.svg",pos:L.create(-13.5,-76.5),scale:.5,alpha:0.5,tint:6250335},{sprite:"img/map/map-bunker-hydra-chamber-ceiling-03.svg",pos:L.create(38,-62),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_hydra_compartment_01 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-hydra\-compartment\-ceiling\-01\.svg\"\,pos\:L\.create\(0\,1\.25\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-hydra-compartment-ceiling-01.svg",pos:L.create(0,1.25),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_hydra_compartment_02 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-hydra\-compartment\-ceiling\-02\.svg\"\,pos\:L\.create\(0\,1\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-hydra-compartment-ceiling-02.svg",pos:L.create(0,1),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_hydra_compartment_03 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-hydra\-compartment\-ceiling\-03\.svg\"\,pos\:L\.create\(0\,1\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-hydra-compartment-ceiling-03.svg",pos:L.create(0,1),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_storm_01 alpha",
-			from: /sprite\:\"img\/map\/map\-building\-shack\-ceiling\.svg\"\,pos\:L\.create\(-1\,10\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-building-shack-ceiling.svg",pos:L.create(-1,10),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Bunker_storm_sublevel_01 alpha",
-			from: /sprite\:\"img\/map\/map\-bunker\-storm\-chamber\-ceiling\-01\.svg\"\,pos\:L\.create\(8\.5\,-1\)\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/map-bunker-storm-chamber-ceiling-01.svg",pos:L.create(8.5,-1),scale:.5,alpha:0.5'
-		},
-		{
-			name: "Container alpha",
-			from: /sprite\:\"img\/map\/\"\+e\.ceilingSprite\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/"+e.ceilingSprite,scale:.5,alpha:0.5'
-		},
-		{
-			name: "Warehouse alpha",
-			from: /sprite\:\"img\/map\/map\-building\-warehouse\-ceiling\.svg\"\,scale\:\.5\,alpha\:1/g,
-			to: 'sprite:"img/map/"+e.ceilingSprite,scale:.5,alpha:0.5'
-		},
-		{
-			name: "Tracer width",
-			from: /tracerWidth:\.[0-9]+/g,
-			to: 'tracerWidth:.2'
-		},
-		{
-			name: "Scope zoom radius",
-			from: /scopeZoomRadius:{.*?}/g,
-			to: 'scopeZoomRadius:{"1xscope":68,"2xscope":68,"4xscope":68,"8xscope":68,"15xscope":104}'
 		}
 	]
 
 	patchRules.forEach(function(item) {
-		if(item.from.test(gameClientCode)) {
-			gameClientCode = gameClientCode.replace(item.from, item.to);
+		if(item.from.test(appCode)) {
+			appCode = appCode.replace(item.from, item.to);
 			// console.log(item.name + " patched");
 		} else {
 			console.log("Err patching: " + item.name);
 		}
 	});
 
-	// exportBulletsProps(gameClientCode);
-
-	return gameClientCode;
+	return appCode;
 }
 
 function injectScript(tabId, code) {

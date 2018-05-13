@@ -1,5 +1,77 @@
-
 var aimInit = function() {
+
+	if(!exports) return;
+
+	function findVariable(name, exports) {
+		var keys = Object.keys(exports);
+		for(var i = 0; i < keys.length; i++) {
+			if(exports[keys[i]].exports[name]) {
+				return exports[keys[i]].exports[name];
+			}
+		}
+
+		return null;
+	};
+
+	// Bullets width
+	var bullets = findVariable("bullets", exports);
+	if(bullets) {
+		Object.keys(bullets).forEach(function(key, index) {
+			bullets[key].tracerWidth = 0.2;
+		});
+	}
+
+	// Gernage size and color
+	var items = findVariable("items", exports);
+	if(items) {
+		items.frag.worldImg.tint = 16711680;
+		items.frag.worldImg.scale = 0.3;
+	}
+
+	// Scope zoom radius
+	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
+	if(scopeZoomRadius) {
+		scopeZoomRadius["1xscope"] = 68;
+		scopeZoomRadius["2xscope"] = 68;
+		scopeZoomRadius["4xscope"] = 68;
+	}
+
+	// var pieTimer = findVariable("PieTimer", exports);
+	// if(pieTimer) {
+	// 	pieTimer(function(){}, 60, "Test", true);
+	// }
+
+	var smokeBarn = findVariable("SmokeBarn", exports);
+	if(smokeBarn) {
+
+	}
+
+	var gameObjectTypes = findVariable("Type", exports);
+
+	var defsParticles = findVariable("Defs", exports);
+	if(defsParticles) {
+		Object.keys(defsParticles).forEach(function(key) {
+			if(defsParticles[key].ceiling) {
+				defsParticles[key].ceiling.imgs.forEach(function(item) {
+					item.alpha = 0.5;
+				});
+			}
+		});
+	}
+
+	var creator = findVariable("Creator", exports);//getobjbyid
+	var pool = findVariable("Pool", exports);//getpool
+	var lootBarn = findVariable("LootBarn", exports);//getCLosestloot
+	var playerBarn = findVariable("PlayerBarn", exports);//getPlayerById
+
+	var emoteData = findVariable("EmoteData", exports);
+	if(emoteData) {
+		Object.keys(emoteData).forEach(function(key, index) {
+			emoteData[key].twitterFollow = false;
+			emoteData[key].youtubeSubscribe = false;
+			emoteData[key].facebookLike = false;
+		});
+	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
 		var dy = ey - cy;
@@ -335,4 +407,4 @@ var aimInit = function() {
 	removeZKeyListener();
 	addZKeyListener();	
 
-};
+}
