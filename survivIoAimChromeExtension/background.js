@@ -9,8 +9,14 @@ function exportBulletsProps(gameClientCode) {
 	return bulletsProps;
 }
 
+function addExportsVariables(gameClientCode) {
+	return "var game=null;partObjects=null;\n" + gameClientCode;
+}
+
 function patchClientCode(gameClientCode) {
-	gameClientCode = '(function(){var game=null;\n' + gameClientCode;
+	gameClientCode = addExportsVariables(gameClientCode);
+
+	gameClientCode = '(function(){' + gameClientCode;
 	gameClientCode = gameClientCode + '\n!function(){var e={bullet_mp5:{speed:85},bullet_ak47:{speed:100},bullet_scar:{speed:108},bullet_mosin:{speed:178},bullet_m39:{speed:125},bullet_m870:{speed:66},bullet_mp220:{speed:66},bullet_m9:{speed:85},bullet_ot38:{speed:112},bullet_mac10:{speed:75},bullet_ump9:{speed:100},bullet_dp28:{speed:110},bullet_glock:{speed:70},bullet_famas:{speed:110},bullet_hk416:{speed:105},bullet_mk12:{speed:132},bullet_m249:{speed:125},bullet_deagle:{speed:112},bullet_vector:{speed:88}},t=function(e,t,n,a){var o=a-t,i=n-e;return Math.atan2(o,i)},n=[0,1,.01,1e-4,1e-6,1e-8],a=function(e){for(var t=e*n[n.length-1],a=n.length-2;a>0;a--)t=e*(n[a]+t);return t+=n[0]},o=1,i=function(t,n,i){var u=game.camera.screenWidth/2,r=game.camera.screenHeight/2,s=r>u?u:r;return s=Math.floor(s-1),o=e["bullet_"+game.activePlayer.weapType]?90/e["bullet_"+game.activePlayer.weapType].speed:1,{x:u+s*Math.cos(t+o*a(i)/3*(t-n)),y:r-s*Math.sin(t+o*a(i)/3*(t-n))}},u={playerId:0,distance:1/0,radianAngle:0,prevRadianAngle:0,new:!1,timestamp:Date.now(),targetMousePosition:{x:0,y:0}},r=!1,s=function(e){var n=!!game.activePlayer&&game.activePlayer.pos,a=[],o=[],s=Object.keys(e);if(!s.length)return u.new=!1,void(u.timestamp=Date.now());if(r&&e[u.playerId]){var d=e[u.playerId].netData.pos,m=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),l=t(n.x,n.y,d.x,d.y);return u.distance=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),u.prevRadianAngle=u.radianAngle,u.radianAngle=l,u.new=!0,u.timestamp=Date.now(),void(u.targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance))}for(var p=0;p<s.length;p++){d=e[s[p]].netData.pos,m=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),l=t(n.x,n.y,d.x,d.y);a.push(m),o.push(l)}var c,g=(c=a).indexOf(Math.min.apply(null,c));u.playerId!=e[s[g]].__id?(u={playerId:e[s[g]].__id,distance:a[g],radianAngle:o[g],prevRadianAngle:o[g],new:!0,timestamp:Date.now()}).targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance):(u.distance=a[g],u.prevRadianAngle=u.radianAngle,u.radianAngle=o[g],u.new=!0,u.timestamp=Date.now(),u.targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance))},d=function(){!1===game.gameOver?(s(function(){var e=[];if(!game.playerBarn.playerInfo[game.activeId])return e;for(var t=game.playerBarn.playerInfo[game.activeId].teamId,n=game.activeId,a=(Object.keys(game.objectCreator.idToObj),Object.keys(game.playerBarn.playerInfo)),o=0;o<a.length;o++)!game.objectCreator.idToObj[a[o]]||game.objectCreator.idToObj[a[o]].netData.dead||game.objectCreator.idToObj[a[o]].netData.downed||game.playerBarn.playerInfo[a[o]].teamId==t||a[o]!=n&&(e[a[o]]=game.objectCreator.idToObj[a[o]]);return e}()),u.new&&(game.input.mousePos=u.targetMousePosition)):f()},m=function(){document.removeEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.removeEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)})},l=function(){document.removeEventListener("keyup",function(e){79==e.which&&(r=!r)})},p=null;function c(){p=setTimeout(c,10),d()}var g=function(e){},v=function(e){},w=function(){g=game.input.bOnMouseDown,v=game.input.bOnMouseMove,window.removeEventListener("mousedown",game.input.bOnMouseDown),window.removeEventListener("mousemove",game.input.bOnMouseMove),window.addEventListener("mousedown",function(e){!e.button&&u.new?(game.input.mousePos=u.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):g(e)}),window.addEventListener("mousemove",function(e){u.new||v(e)}),m(),document.addEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.addEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)}),l(),document.addEventListener("keyup",function(e){79==e.which&&(r=!r)})},b=function(){window.removeEventListener("mousedown",function(e){!e.button&&u.new?(game.input.mousePos=u.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):g(e)}),window.removeEventListener("mousemove",function(e){u.new||v(e)}),window.addEventListener("mousedown",g),window.addEventListener("mousemove",v),m(),l()},h=!1;function y(){!1===game.gameOver&&(w(),h=!0,p&&(clearTimeout(p),p=null),c())}function f(){p&&(clearTimeout(p),p=null),b(),h=!1,r=!1}document.removeEventListener("keyup",function(e){90==e.which&&(h?f():y())}),document.addEventListener("keyup",function(e){90==e.which&&(h?f():y())})}();';
 	gameClientCode = gameClientCode + '\n})();';
 
@@ -18,7 +24,12 @@ function patchClientCode(gameClientCode) {
 		{
 			name: "Code scope",
 			from: /this\.activePlayer=null\,/g,
-			to: 'this\.activePlayer=null\,game=this\,'	
+			to: 'this\.activePlayer=null\,game=this\,'
+		},
+		{
+			name: "Export actual game info",
+			from: /processGameUpdate:function\(e\){/g,
+			to: 'processGameUpdate:function(e){partObjects=e.partObjects;if(partObjects && partObjects.length){console.log(partObjects);}'
 		},
 		{
 			name: "Smoke gernage alpha",
@@ -166,6 +177,19 @@ function patchClientCode(gameClientCode) {
 	return gameClientCode;
 }
 
+function injectScript(tabId, code) {
+	chrome.tabs.get(tabId, function(tab) {
+		if(chrome.runtime.lastError) {
+			console.log(chrome.runtime.lastError.message.toString());
+			return;
+		} else {
+			chrome.tabs.executeScript(tabId, {
+				code: code
+			});
+		}
+	});
+};
+
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 		if(details.url.match(/manifest/)) {
@@ -189,9 +213,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 							'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
 						}, function() {
 							console.log("Manifest code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: xhr.responseText
-							});
+							injectScript(details.tabId, xhr.responseText);
 							return;
 						});
 					}
@@ -216,16 +238,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 									'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
 								}, function() {
 									console.log("Manifest code updated.");
-									chrome.tabs.executeScript(details.tabId, {
-										code: xhr.responseText
-									});
+									injectScript(details.tabId, xhr.responseText);
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: mainfestCode.mainfestCode
-							});
+							injectScript(details.tabId, mainfestCode.mainfestCode);
 						}
 					});
 				}
@@ -253,9 +271,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 							'vendorVer': details.url.match(/vendor\.(.*)\.js/)[1]
 						}, function() {
 							console.log("Vendor code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: xhr.responseText
-							});
+							injectScript(details.tabId, xhr.responseText);
 							return;
 						});
 					}
@@ -280,16 +296,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 									'vendorVer': details.url.match(/vendor\.(.*)\.js/)[1]
 								}, function() {
 									console.log("Vendor code updated.");
-									chrome.tabs.executeScript(details.tabId, {
-										code: xhr.responseText
-									});
+									injectScript(details.tabId, xhr.responseText);
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: vendorCode.vendorCode
-							});
+							injectScript(details.tabId, vendorCode.vendorCode);
 						}
 					});
 				}
@@ -318,10 +330,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 							'appVer': details.url.match(/app\.(.*)\.js/)[1]
 						}, function() {
 							console.log("App code stored.");
-							chrome.tabs.executeScript(details.tabId, {
-								code: patchedClientCode
-							});
-
+							injectScript(details.tabId, patchedClientCode);
 							return;
 						});
 					}
@@ -347,16 +356,12 @@ chrome.webRequest.onBeforeRequest.addListener(
 									'appVer': details.url.match(/app\.(.*)\.js/)[1]
 								}, function() {
 									console.log("App code updated.");
-									chrome.tabs.executeScript(details.tabId, {
-										code: patchedClientCode
-									});
+									injectScript(details.tabId, patchedClientCode);
 									return;
 								});
 							}
 						} else {
-							chrome.tabs.executeScript(details.tabId, {
-								code: appCode.appCode
-							});
+							injectScript(details.tabId, appCode.appCode);
 						}
 					});
 				}
