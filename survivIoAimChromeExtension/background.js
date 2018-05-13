@@ -21,9 +21,9 @@ function patchManifestCode(manifestCode) {
 }
 
 function wrapAppCode(appCode) {
-	var variables = 'var game={scope:null};var exports=window.exports;var bullets=null;';
+	var variables = 'var game=null;var exports=window.exports;var bullets=null;';
 
-	appCode = '(function(){' + variables + appCode + '\n(' + aimInit + ')(exports, game);' + '})();';
+	appCode = '(function(){' + variables + appCode + '\n(' + aimInit + ')();' + '})();';
 
 	return appCode;
 }
@@ -35,7 +35,7 @@ function patchAppCode(appCode) {
 		{
 			name: "Export game scope",
 			from: /init:function\(\){var ([a-z]),([a-z])=this.pixi.renderer/,
-			to: 'init:function(){game.scope=this;var $1,$2=this.pixi.renderer'
+			to: 'init:function(){game=this;var $1,$2=this.pixi.renderer'
 		},
 
 		{
@@ -300,10 +300,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			"*://*.surviv2.io/js/app.*.js",
 			"*://*.2dbattleroyale.com/js/manifest.*.js",
 			"*://*.2dbattleroyale.com/js/vendor.*.js",
-			"*://*.2dbattleroyale.com/js/app.*.js",
-			"*://*.2dbattleroyale.org/js/manifest.*.js",
-			"*://*.2dbattleroyale.org/js/vendor.*.js",
-			"*://*.2dbattleroyale.org/js/app.*.js",
+			"*://*.2dbattleroyale.com/js/app.*.js"
 		],
 		types: ["script"]
 	},

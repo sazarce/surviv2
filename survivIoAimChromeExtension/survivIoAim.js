@@ -1,8 +1,7 @@
-var aimInit = function(exports, game) {
+var aimInit = function() {
 
 	if(!exports) return;
-	
-	// setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);}}, 2000);
+
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
 		for(var i = 0; i < keys.length; i++) {
@@ -20,8 +19,6 @@ var aimInit = function(exports, game) {
 		Object.keys(bullets).forEach(function(key, index) {
 			bullets[key].tracerWidth = 0.2;
 		});
-	} else {
-		console.log("Bullets width not patched");
 	}
 
 	// Gernage size and color
@@ -29,8 +26,6 @@ var aimInit = function(exports, game) {
 	if(items) {
 		items.frag.worldImg.tint = 16711680;
 		items.frag.worldImg.scale = 0.3;
-	} else {
-		console.log("Gernage size and color not patched");
 	}
 
 	// Scope zoom radius
@@ -39,11 +34,8 @@ var aimInit = function(exports, game) {
 		scopeZoomRadius["1xscope"] = 68;
 		scopeZoomRadius["2xscope"] = 68;
 		scopeZoomRadius["4xscope"] = 68;
-	} else {
-		console.log("Scope zoom and radius not patched");
 	}
 
-	// Ceiling alpha
 	var defsParticles = findVariable("Defs", exports);
 	if(defsParticles) {
 		Object.keys(defsParticles).forEach(function(key) {
@@ -53,8 +45,6 @@ var aimInit = function(exports, game) {
 				});
 			}
 		});
-	} else {
-		console.log("Ceiling alpha not patched")
 	}
 
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
@@ -63,33 +53,34 @@ var aimInit = function(exports, game) {
 		var theta = Math.atan2(dy, dx); // range (-PI, PI]
 		// theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
 		// if (theta < 0) theta = 360 + theta; // range [0, 360)
+
 		return theta;
 	}
 
 	var getSelfPos = function() {
-		if(game.scope && game.scope.activePlayer) {
-			return game.scope.activePlayer.pos;
+		if(game.activePlayer) {
+			return game.activePlayer.pos
 		} else {
-			return null;
+			return false;
 		}
 	}
 
 	var detectEnemies = function() {
 		var result = [];
-		if(!game.scope.playerBarn.playerInfo[game.scope.activeId]) return result;
+		if(!game.playerBarn.playerInfo[game.activeId]) return result;
 
-		var selfTeamId = game.scope.playerBarn.playerInfo[game.scope.activeId].teamId;
-		var selfId = game.scope.activeId;
-		var objectIds = Object.keys(game.scope.objectCreator.idToObj);
-		var playerIds = Object.keys(game.scope.playerBarn.playerInfo);
+		var selfTeamId = game.playerBarn.playerInfo[game.activeId].teamId;
+		var selfId = game.activeId;
+		var objectIds = Object.keys(game.objectCreator.idToObj);
+		var playerIds = Object.keys(game.playerBarn.playerInfo);
 
 		for(var i = 0; i < playerIds.length; i++) {
-			if( game.scope.objectCreator.idToObj[playerIds[i]] && 
-				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.dead) && 
-				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.downed) &&
-				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
+			if( game.objectCreator.idToObj[playerIds[i]] && 
+				(!game.objectCreator.idToObj[playerIds[i]].netData.dead) && 
+				(!game.objectCreator.idToObj[playerIds[i]].netData.downed) &&
+				game.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
 				if(playerIds[i] != selfId) {
-					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
+					result[playerIds[i]] = game.objectCreator.idToObj[playerIds[i]];
 				}
 			}
 		}
@@ -99,14 +90,23 @@ var aimInit = function(exports, game) {
 
 	// six coeffs
 	// max effective distance is 64
-	var calculateHornerPoly = function(distance, coeffs) {
-		var result = distance * coeffs[coeffs.length - 1];
+	var a = [
+		0,
+		1,
+		1/100,
+		1/10000,
+		1/1000000,
+		1/100000000
+	];
+	var calculateHornerPoly = function(distance) {
+		var result = distance * a[a.length - 1];
 
-		for(var i = coeffs.length - 2; i > 0; i--) {
-			result = distance * (coeffs[i] + result);
+		for(var i = a.length - 2; i > 0; i--) {
+			result = distance * (a[i] + result);
 		}
 
-		result += coeffs[0];
+		result += a[0];
+
 		return result;
 	}
 
@@ -114,35 +114,23 @@ var aimInit = function(exports, game) {
 		return enemyDistances.indexOf(Math.min.apply(null, enemyDistances));
 	}
 
-	var gunCorrectionFactors = {
-		default: {
-			polyDividerFactor: 3,
-			bulletSpeedFactor: 90,
-			polyCoeffs: [ 0, 1, 1/100, 1/10000, 1/1000000, 1/100000000 ]
-		}
-	};
+	var bulletCoeff = 1;
 	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
-		var halfScreenWidth = game.scope.camera.screenWidth/2;
-		var halfScreenHeight = game.scope.camera.screenHeight/2;
+		var halfScreenWidth = game.camera.screenWidth/2;
+		var halfScreenHeight = game.camera.screenHeight/2;
 
 		var minScreenCircleRadius = halfScreenHeight > halfScreenWidth ? halfScreenWidth : halfScreenHeight;
 		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
 
-		if(bullets["bullet_" + game.scope.activePlayer.weapType]) {		
-			// var bulletSpeedCoeff = bulletSpeedFactor/bullets["bullet_" + game.scope.activePlayer.weapType].speed;
-			// var polyDividerFactor = gunCorrectionFactors["bullet_" + game.scope.activePlayer.weapType];
-			var polyDividerFactor = gunCorrectionFactors.default.polyDividerFactor;
-			var bulletSpeedCoeff = gunCorrectionFactors.default.bulletSpeedFactor/bullets["bullet_" + game.scope.activePlayer.weapType].speed;
-			var polyCoeffs = gunCorrectionFactors.default.polyCoeffs;
+		if(bullets["bullet_" + game.activePlayer.weapType]) {
+			bulletCoeff = 90/bullets["bullet_" + game.activePlayer.weapType].speed; // 50
 		} else {
-			var polyDividerFactor = gunCorrectionFactors.default.polyDividerFactor;
-			var bulletSpeedCoeff = 1;
-			var polyCoeffs = gunCorrectionFactors.default.polyCoeffs;
+			bulletCoeff = 1;
 		}
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletSpeedCoeff * calculateHornerPoly(distance, polyCoeffs)/polyDividerFactor * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletSpeedCoeff * calculateHornerPoly(distance, polyCoeffs)/polyDividerFactor * (radianAngle - prevRadianAngle)),
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3 * (radianAngle - prevRadianAngle)),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletCoeff * calculateHornerPoly(distance)/3 * (radianAngle - prevRadianAngle)),
 		}
 	}
 
@@ -156,9 +144,9 @@ var aimInit = function(exports, game) {
 		targetMousePosition: {
 			x: 0,
 			y: 0,
-		},
-		captureEnemyMode: false
+		}
 	}
+	var captureEnemyMode = false;
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
 		var enemyDistances = [];
@@ -170,7 +158,7 @@ var aimInit = function(exports, game) {
 			state.timestamp = Date.now();	
 			return;
 		} else {
-			if(state.captureEnemyMode) {				
+			if(captureEnemyMode) {				
 				if(detectedEnemies[state.playerId]) {
 					var enemyPos = detectedEnemies[state.playerId].netData.pos;
 
@@ -200,12 +188,14 @@ var aimInit = function(exports, game) {
 
 			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
 			if(state.playerId != detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id) {
-				state.playerId = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id;
-				state.distance = enemyDistances[minimalDistanceEnemyIndex];
-				state.prevRadianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
-				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
-				state.new = true;
-				state.timestamp = Date.now();
+				state = {
+					playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
+					distance: enemyDistances[minimalDistanceEnemyIndex],
+					radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
+					prevRadianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
+					new: true,
+					timestamp: Date.now(),
+				}
 				state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
 			} else {
 				state.distance = enemyDistances[minimalDistanceEnemyIndex];
@@ -220,7 +210,7 @@ var aimInit = function(exports, game) {
 
 	var iterate = function() {
 		// check if we in game
-		if(game.scope.gameOver !== false) {
+		if(game.gameOver !== false) {
 			disableCheat();
 			return;
 		}
@@ -228,50 +218,50 @@ var aimInit = function(exports, game) {
 		updateState(detectEnemies());
 		
 		if(state.new) {
-			game.scope.input.mousePos = state.targetMousePosition;
+			game.input.mousePos = state.targetMousePosition;
 		}
 	}	
 
 	var addSpaceKeyListener = function() {
-		window.addEventListener("keydown", function(event) {
+		document.addEventListener("keydown", function(event) {
 			if(event.which == 32) {
-				game.scope.input.mouseButton = true;
+				game.input.mouseButton = true;
 			}
 		});
 
-		window.addEventListener("keyup", function(event) {
+		document.addEventListener("keyup", function(event) {
 			if(event.which == 32) {
-				game.scope.input.mouseButton = false;
+				game.input.mouseButton = false;
 			}
 		});
 	}
 
 	var removeSpaceKeyListener = function() {
-		window.removeEventListener("keydown", function(event) {
+		document.removeEventListener("keydown", function(event) {
 			if(event.which == 32) {
-				game.scope.input.mouseButton = true;
+				game.input.mouseButton = true;
 			}
 		});
 
-		window.removeEventListener("keyup", function(event) {
+		document.removeEventListener("keyup", function(event) {
 			if(event.which == 32) {
-				game.scope.input.mouseButton = false;
+				game.input.mouseButton = false;
 			}
 		});
 	}
 
 	var addOKeyListener = function() {
-		window.addEventListener("keyup", function(event) {
+		document.addEventListener("keyup", function(event) {
 			if(event.which == 79) {
-				state.captureEnemyMode = !state.captureEnemyMode;
+				captureEnemyMode = !captureEnemyMode;
 			}
 		});
 	}
 
 	var removeOKeyListener = function() {
-		window.removeEventListener("keyup", function(event) {
+		document.removeEventListener("keyup", function(event) {
 			if(event.which == 79) {
-				state.captureEnemyMode = !state.captureEnemyMode;
+				captureEnemyMode = !captureEnemyMode;
 			}
 		});
 	}
@@ -286,17 +276,17 @@ var aimInit = function(exports, game) {
 	var defaultBOnMouseMove = function(event) {};
 
 	var bindCheatListeners = function() {
-		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
-		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
+		defaultBOnMouseDown = game.input.bOnMouseDown;
+		defaultBOnMouseMove = game.input.bOnMouseMove;
 
-		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
-		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
+		window.removeEventListener("mousedown", game.input.bOnMouseDown);
+		window.removeEventListener("mousemove", game.input.bOnMouseMove);
 
 		window.addEventListener("mousedown", function(event) {
 			if(!event.button && state.new) {
-				game.scope.input.mousePos = state.targetMousePosition;
-				game.scope.input.mouseButtonOld = false;
-				game.scope.input.mouseButton = true;
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
 			} else {
 				defaultBOnMouseDown(event);
 			}
@@ -318,9 +308,9 @@ var aimInit = function(exports, game) {
 	var unbindCheatListeners = function() {
 		window.removeEventListener("mousedown", function(event) {
 			if(!event.button && state.new) {
-				game.scope.input.mousePos = state.targetMousePosition;
-				game.scope.input.mouseButtonOld = false;
-				game.scope.input.mouseButton = true;
+				game.input.mousePos = state.targetMousePosition;
+				game.input.mouseButtonOld = false;
+				game.input.mouseButton = true;
 			} else {
 				defaultBOnMouseDown(event);
 			}
@@ -341,7 +331,7 @@ var aimInit = function(exports, game) {
 
 	var cheatEnabled = false;
 	function enableCheat() {
-		if(game.scope && game.scope.gameOver === false) {			
+		if(game.gameOver === false) {			
 			bindCheatListeners();
 			cheatEnabled = true;
 
@@ -361,18 +351,11 @@ var aimInit = function(exports, game) {
 
 		unbindCheatListeners();
 		cheatEnabled = false;
-		state.captureEnemyMode = false;
-	}
-
-	var openCheatMenu = function() {
-		console.log("Cheat menu");
+		captureEnemyMode = false;
 	}
 
 	var addZKeyListener = function() {
-		var zKeyDowned = false;
-		var cheatMenuTimer = null;
-
-		window.addEventListener("keyup", function(event) {
+		document.addEventListener("keyup", function(event) {
 			if(event.which == 90) {
 				if(cheatEnabled) {
 					disableCheat();
@@ -384,10 +367,7 @@ var aimInit = function(exports, game) {
 	}
 
 	var removeZKeyListener = function() {
-		var zKeyDowned = false;
-		var cheatMenuTimer = null;
-
-		window.removeEventListener("keyup", function(event) {
+		document.removeEventListener("keyup", function(event) {
 			if(event.which == 90) {
 				if(cheatEnabled) {
 					disableCheat();
@@ -399,5 +379,6 @@ var aimInit = function(exports, game) {
 	}
 
 	removeZKeyListener();
-	addZKeyListener();
+	addZKeyListener();	
+
 }
