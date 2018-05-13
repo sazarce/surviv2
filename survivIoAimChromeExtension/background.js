@@ -10,7 +10,7 @@ function exportBulletsProps(gameClientCode) {
 }
 
 function addExportsVariables(gameClientCode) {
-	return "var game=null;partObjects=null;\n" + gameClientCode;
+	return "var game=null;var partObjects=null;\n" + gameClientCode;
 }
 
 function patchClientCode(gameClientCode) {
@@ -26,11 +26,11 @@ function patchClientCode(gameClientCode) {
 			from: /this\.activePlayer=null\,/g,
 			to: 'this\.activePlayer=null\,game=this\,'
 		},
-		{
-			name: "Export actual game info",
-			from: /processGameUpdate:function\(e\){/g,
-			to: 'processGameUpdate:function(e){partObjects=e.partObjects;if(partObjects && partObjects.length){console.log(partObjects);}'
-		},
+		// {
+		// 	name: "Export actual game info",
+		// 	from: /processGameUpdate:function\(e\){/g,
+		// 	to: 'processGameUpdate:function(e){partObjects=e.partObjects;if(partObjects && partObjects.length){console.log(partObjects);}'
+		// },
 		{
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
