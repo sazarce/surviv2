@@ -1,66 +1,6 @@
 
 (function() {
 
-	var bullets = {
-		bullet_mp5: {
-			speed: 85
-		},
-		bullet_ak47: {
-			speed: 100
-		},
-		bullet_scar: {
-			speed: 108
-		},
-		bullet_mosin: {
-			speed: 178
-		},
-		bullet_m39: {
-			speed: 125
-		},
-		bullet_m870: {
-			speed: 66
-		},
-		bullet_mp220: {
-			speed: 66
-		},
-		bullet_m9: {
-			speed: 85
-		},
-		bullet_ot38: {
-			speed: 112
-		},
-		bullet_mac10: {
-			speed: 75
-		},
-		bullet_ump9: {
-			speed: 100
-		},
-		bullet_dp28: {
-			speed: 110
-		},
-		bullet_glock: {
-			speed: 70
-		},
-		bullet_famas: {
-			speed: 110
-		},
-		bullet_hk416: {
-			speed: 105
-		},
-		bullet_mk12: {
-			speed: 132
-		},
-		bullet_m249: {
-			speed: 125
-		},
-		bullet_deagle: {
-			speed: 112
-		},
-		bullet_vector: {
-			speed: 88
-		}		
-	}
-
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
 		var dy = ey - cy;
 		var dx = ex - cx;

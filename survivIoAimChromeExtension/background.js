@@ -1,36 +1,86 @@
 
-function exportBulletsProps(gameClientCode) {
-	var bulletsPropsStr = gameClientCode.match(/bullets:{.*?}}/)[0];
-	if(!bulletsPropsStr) return null;
-
-	// ATTENTION!!!!
-	eval("var bulletsProps = {" + bulletsPropsStr + "}");
-	
-	return bulletsProps;
-}
-
-function addExportsVariables(gameClientCode) {
-	return "var game=null;var partObjects=null;\n" + gameClientCode;
-}
-
-function patchClientCode(gameClientCode) {
-	gameClientCode = addExportsVariables(gameClientCode);
-
-	gameClientCode = '(function(){' + gameClientCode;
-	gameClientCode = gameClientCode + '\n!function(){var e={bullet_mp5:{speed:85},bullet_ak47:{speed:100},bullet_scar:{speed:108},bullet_mosin:{speed:178},bullet_m39:{speed:125},bullet_m870:{speed:66},bullet_mp220:{speed:66},bullet_m9:{speed:85},bullet_ot38:{speed:112},bullet_mac10:{speed:75},bullet_ump9:{speed:100},bullet_dp28:{speed:110},bullet_glock:{speed:70},bullet_famas:{speed:110},bullet_hk416:{speed:105},bullet_mk12:{speed:132},bullet_m249:{speed:125},bullet_deagle:{speed:112},bullet_vector:{speed:88}},t=function(e,t,n,a){var o=a-t,i=n-e;return Math.atan2(o,i)},n=[0,1,.01,1e-4,1e-6,1e-8],a=function(e){for(var t=e*n[n.length-1],a=n.length-2;a>0;a--)t=e*(n[a]+t);return t+=n[0]},o=1,i=function(t,n,i){var u=game.camera.screenWidth/2,r=game.camera.screenHeight/2,s=r>u?u:r;return s=Math.floor(s-1),o=e["bullet_"+game.activePlayer.weapType]?90/e["bullet_"+game.activePlayer.weapType].speed:1,{x:u+s*Math.cos(t+o*a(i)/3*(t-n)),y:r-s*Math.sin(t+o*a(i)/3*(t-n))}},u={playerId:0,distance:1/0,radianAngle:0,prevRadianAngle:0,new:!1,timestamp:Date.now(),targetMousePosition:{x:0,y:0}},r=!1,s=function(e){var n=!!game.activePlayer&&game.activePlayer.pos,a=[],o=[],s=Object.keys(e);if(!s.length)return u.new=!1,void(u.timestamp=Date.now());if(r&&e[u.playerId]){var d=e[u.playerId].netData.pos,m=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),l=t(n.x,n.y,d.x,d.y);return u.distance=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),u.prevRadianAngle=u.radianAngle,u.radianAngle=l,u.new=!0,u.timestamp=Date.now(),void(u.targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance))}for(var p=0;p<s.length;p++){d=e[s[p]].netData.pos,m=Math.sqrt(Math.pow(Math.abs(n.x-d.x),2)+Math.pow(Math.abs(n.y-d.y),2)),l=t(n.x,n.y,d.x,d.y);a.push(m),o.push(l)}var c,g=(c=a).indexOf(Math.min.apply(null,c));u.playerId!=e[s[g]].__id?(u={playerId:e[s[g]].__id,distance:a[g],radianAngle:o[g],prevRadianAngle:o[g],new:!0,timestamp:Date.now()}).targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance):(u.distance=a[g],u.prevRadianAngle=u.radianAngle,u.radianAngle=o[g],u.new=!0,u.timestamp=Date.now(),u.targetMousePosition=i(u.radianAngle,u.prevRadianAngle,u.distance))},d=function(){!1===game.gameOver?(s(function(){var e=[];if(!game.playerBarn.playerInfo[game.activeId])return e;for(var t=game.playerBarn.playerInfo[game.activeId].teamId,n=game.activeId,a=(Object.keys(game.objectCreator.idToObj),Object.keys(game.playerBarn.playerInfo)),o=0;o<a.length;o++)!game.objectCreator.idToObj[a[o]]||game.objectCreator.idToObj[a[o]].netData.dead||game.objectCreator.idToObj[a[o]].netData.downed||game.playerBarn.playerInfo[a[o]].teamId==t||a[o]!=n&&(e[a[o]]=game.objectCreator.idToObj[a[o]]);return e}()),u.new&&(game.input.mousePos=u.targetMousePosition)):f()},m=function(){document.removeEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.removeEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)})},l=function(){document.removeEventListener("keyup",function(e){79==e.which&&(r=!r)})},p=null;function c(){p=setTimeout(c,10),d()}var g=function(e){},v=function(e){},w=function(){g=game.input.bOnMouseDown,v=game.input.bOnMouseMove,window.removeEventListener("mousedown",game.input.bOnMouseDown),window.removeEventListener("mousemove",game.input.bOnMouseMove),window.addEventListener("mousedown",function(e){!e.button&&u.new?(game.input.mousePos=u.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):g(e)}),window.addEventListener("mousemove",function(e){u.new||v(e)}),m(),document.addEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.addEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)}),l(),document.addEventListener("keyup",function(e){79==e.which&&(r=!r)})},b=function(){window.removeEventListener("mousedown",function(e){!e.button&&u.new?(game.input.mousePos=u.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):g(e)}),window.removeEventListener("mousemove",function(e){u.new||v(e)}),window.addEventListener("mousedown",g),window.addEventListener("mousemove",v),m(),l()},h=!1;function y(){!1===game.gameOver&&(w(),h=!0,p&&(clearTimeout(p),p=null),c())}function f(){p&&(clearTimeout(p),p=null),b(),h=!1,r=!1}document.removeEventListener("keyup",function(e){90==e.which&&(h?f():y())}),document.addEventListener("keyup",function(e){90==e.which&&(h?f():y())})}();';
-	gameClientCode = gameClientCode + '\n})();';
-
+function patchManifestCode(manifestCode) {
 	var patchRules = [
 		{
-			name: "Code scope",
+			name: "Exports exports scope",
+			from: /var ([a-z])={},(.*?);/g,
+			to: 'var $1={},$2;window.exports=$1;'
+		}
+	]
+
+	patchRules.forEach(function(item) {
+		if(item.from.test(manifestCode)) {
+			manifestCode = manifestCode.replace(item.from, item.to);
+			console.log(item.name + " patched");
+		} else {
+			console.log("Err patching: " + item.name);
+		}
+	});
+
+	return manifestCode;
+}
+
+function findVariable(name, exports) {
+	var keys = Object.keys(exports);
+	for(var i = 0; i < keys.length; i++) {
+		if(exports[keys[i]].exports[name]) {
+			return exports[keys[i]].exports[name];
+		}
+	}
+}
+
+function wrapAppCode(appCode) {
+	var variables = "";
+	
+	variables += "var game=null;var exports=null;var bullets=null;";
+
+	appCode = variables + appCode;
+
+	appCode = '(function(){' + appCode;
+
+	appCode = appCode + '\n!function(){var e=function(e,n,t,a){var o=a-n,i=t-e;return Math.atan2(o,i)},n=[0,1,.01,1e-4,1e-6,1e-8],t=function(e){for(var t=e*n[n.length-1],a=n.length-2;a>0;a--)t=e*(n[a]+t);return t+=n[0]},a=1,o=function(e,n,o){var i=game.camera.screenWidth/2,r=game.camera.screenHeight/2,u=r>i?i:r;return u=Math.floor(u-1),a=bullets["bullet_"+game.activePlayer.weapType]?90/bullets["bullet_"+game.activePlayer.weapType].speed:1,{x:i+u*Math.cos(e+a*t(o)/3*(e-n)),y:r-u*Math.sin(e+a*t(o)/3*(e-n))}},i={playerId:0,distance:1/0,radianAngle:0,prevRadianAngle:0,new:!1,timestamp:Date.now(),targetMousePosition:{x:0,y:0}},r=!1,u=function(n){var t=!!game.activePlayer&&game.activePlayer.pos,a=[],u=[],m=Object.keys(n);if(!m.length)return i.new=!1,void(i.timestamp=Date.now());if(r&&n[i.playerId]){var s=n[i.playerId].netData.pos,d=Math.sqrt(Math.pow(Math.abs(t.x-s.x),2)+Math.pow(Math.abs(t.y-s.y),2)),c=e(t.x,t.y,s.x,s.y);return i.distance=Math.sqrt(Math.pow(Math.abs(t.x-s.x),2)+Math.pow(Math.abs(t.y-s.y),2)),i.prevRadianAngle=i.radianAngle,i.radianAngle=c,i.new=!0,i.timestamp=Date.now(),void(i.targetMousePosition=o(i.radianAngle,i.prevRadianAngle,i.distance))}for(var g=0;g<m.length;g++){s=n[m[g]].netData.pos,d=Math.sqrt(Math.pow(Math.abs(t.x-s.x),2)+Math.pow(Math.abs(t.y-s.y),2)),c=e(t.x,t.y,s.x,s.y);a.push(d),u.push(c)}var p,l=(p=a).indexOf(Math.min.apply(null,p));i.playerId!=n[m[l]].__id?(i={playerId:n[m[l]].__id,distance:a[l],radianAngle:u[l],prevRadianAngle:u[l],new:!0,timestamp:Date.now()}).targetMousePosition=o(i.radianAngle,i.prevRadianAngle,i.distance):(i.distance=a[l],i.prevRadianAngle=i.radianAngle,i.radianAngle=u[l],i.new=!0,i.timestamp=Date.now(),i.targetMousePosition=o(i.radianAngle,i.prevRadianAngle,i.distance))},m=function(){!1===game.gameOver?(u(function(){var e=[];if(!game.playerBarn.playerInfo[game.activeId])return e;for(var n=game.playerBarn.playerInfo[game.activeId].teamId,t=game.activeId,a=(Object.keys(game.objectCreator.idToObj),Object.keys(game.playerBarn.playerInfo)),o=0;o<a.length;o++)!game.objectCreator.idToObj[a[o]]||game.objectCreator.idToObj[a[o]].netData.dead||game.objectCreator.idToObj[a[o]].netData.downed||game.playerBarn.playerInfo[a[o]].teamId==n||a[o]!=t&&(e[a[o]]=game.objectCreator.idToObj[a[o]]);return e}()),i.new&&(game.input.mousePos=i.targetMousePosition)):f()},s=function(){document.removeEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.removeEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)})},d=function(){document.removeEventListener("keyup",function(e){79==e.which&&(r=!r)})},c=null;function g(){c=setTimeout(g,10),m()}var p=function(e){},l=function(e){},v=function(){p=game.input.bOnMouseDown,l=game.input.bOnMouseMove,window.removeEventListener("mousedown",game.input.bOnMouseDown),window.removeEventListener("mousemove",game.input.bOnMouseMove),window.addEventListener("mousedown",function(e){!e.button&&i.new?(game.input.mousePos=i.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):p(e)}),window.addEventListener("mousemove",function(e){i.new||l(e)}),s(),document.addEventListener("keydown",function(e){32==e.which&&(game.input.mouseButton=!0)}),document.addEventListener("keyup",function(e){32==e.which&&(game.input.mouseButton=!1)}),d(),document.addEventListener("keyup",function(e){79==e.which&&(r=!r)})},w=function(){window.removeEventListener("mousedown",function(e){!e.button&&i.new?(game.input.mousePos=i.targetMousePosition,game.input.mouseButtonOld=!1,game.input.mouseButton=!0):p(e)}),window.removeEventListener("mousemove",function(e){i.new||l(e)}),window.addEventListener("mousedown",p),window.addEventListener("mousemove",l),s(),d()},h=!1;function y(){!1===game.gameOver&&(v(),h=!0,c&&(clearTimeout(c),c=null),g())}function f(){c&&(clearTimeout(c),c=null),w(),h=!1,r=!1}document.removeEventListener("keyup",function(e){90==e.which&&(h?f():y())}),document.addEventListener("keyup",function(e){90==e.which&&(h?f():y())})}();';
+	appCode = appCode + '\nif(window.exports){exports=window.exports;delete window.exports;};'
+
+	appCode = appCode +'\nbullets=(' + findVariable + ')("bullets",exports);'
+
+	appCode = appCode + '})();';
+
+	return appCode;
+}
+
+function patchAppCode(gameClientCode) {
+	gameClientCode = wrapAppCode(gameClientCode);
+
+	var patchRules = [
+		/*
+			{
+				name: "Export sended data",
+				from: /sendMessage:function\(([a-z]),([a-z])\){/g,
+				to: 'sendMessage:function($1,$2){reviewSendedMessage($1,$2);'
+			},
+			{
+				name: "Export game update info",
+				from: /processGameUpdate:function\(([a-z])\){/g,
+				to: 'processGameUpdate:function($1){reviewGameUpdateInfo($1);'
+			},
+
+			{
+				name: "Export joined msg",
+				from: /case ([a-z]).Msg.Joined:(.*?);([a-z]).deserialize\(([a-z])\),/g,
+				to: 'case $1.Msg.Joined:$2;$3.deserialize($4),reviewJoinedMsg($3),'
+			},
+		*/
+		{
+			name: "Export game scope",
 			from: /this\.activePlayer=null\,/g,
 			to: 'this\.activePlayer=null\,game=this\,'
 		},
-		// {
-		// 	name: "Export actual game info",
-		// 	from: /processGameUpdate:function\(e\){/g,
-		// 	to: 'processGameUpdate:function(e){partObjects=e.partObjects;if(partObjects && partObjects.length){console.log(partObjects);}'
-		// },
+
+		{
+			name: "Change removeAds function",
+			from: /removeAds:function\(\)/g,
+			to: 'removeAds:function(){},_removeAds:function()'
+		},
 		{
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
@@ -158,7 +208,7 @@ function patchClientCode(gameClientCode) {
 		},
 		{
 			name: "Scope zoom radius",
-			from: /scopeZoomRadius:{"1xscope":28,"2xscope":36,"4xscope":48,"8xscope":68,"15xscope":104}/g,
+			from: /scopeZoomRadius:{.*?}/g,
 			to: 'scopeZoomRadius:{"1xscope":68,"2xscope":68,"4xscope":68,"8xscope":68,"15xscope":104}'
 		}
 	]
@@ -166,7 +216,7 @@ function patchClientCode(gameClientCode) {
 	patchRules.forEach(function(item) {
 		if(item.from.test(gameClientCode)) {
 			gameClientCode = gameClientCode.replace(item.from, item.to);
-			console.log(item.name + " patched");
+			// console.log(item.name + " patched");
 		} else {
 			console.log("Err patching: " + item.name);
 		}
@@ -193,8 +243,8 @@ function injectScript(tabId, code) {
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 		if(details.url.match(/manifest/)) {
-			chrome.storage.local.get(['mainfestCode'], function(mainfestCode) {
-				if(mainfestCode.mainfestCode === undefined) {
+			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
+				if(manifestCode.manifestCode === undefined) {
 		        	console.log("Executing xhr manifest request...");
 					var xhr = new XMLHttpRequest();
 					xhr.open("GET", details.url, true);
@@ -208,12 +258,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 							return;
 						}
 
+						var patchedManifestCode = patchManifestCode(xhr.responseText);
 						chrome.storage.local.set({
-							'mainfestCode': xhr.responseText,
+							'manifestCode': patchedManifestCode,
 							'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
 						}, function() {
 							console.log("Manifest code stored.");
-							injectScript(details.tabId, xhr.responseText);
+							injectScript(details.tabId, patchedManifestCode);
 							return;
 						});
 					}
@@ -233,17 +284,18 @@ chrome.webRequest.onBeforeRequest.addListener(
 									return;
 								}
 
+								var patchedManifestCode = patchManifestCode(xhr.responseText);
 								chrome.storage.local.set({
-									'mainfestCode': xhr.responseText,
+									'manifestCode': patchedManifestCode,
 									'mainfestVer': details.url.match(/manifest\.(.*)\.js/)[1]
 								}, function() {
 									console.log("Manifest code updated.");
-									injectScript(details.tabId, xhr.responseText);
+									injectScript(details.tabId, patchedManifestCode);
 									return;
 								});
 							}
 						} else {
-							injectScript(details.tabId, mainfestCode.mainfestCode);
+							injectScript(details.tabId, manifestCode.manifestCode);
 						}
 					});
 				}
@@ -324,7 +376,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 							return;
 						}
 
-						var patchedClientCode = patchClientCode(xhr.responseText);
+						var patchedClientCode = patchAppCode(xhr.responseText);
 						chrome.storage.local.set({
 							'appCode': patchedClientCode,
 							'appVer': details.url.match(/app\.(.*)\.js/)[1]
@@ -350,7 +402,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 									return;
 								}
 
-								var patchedClientCode = patchClientCode(xhr.responseText);
+								var patchedClientCode = patchAppCode(xhr.responseText);
 								chrome.storage.local.set({
 									'appCode': patchedClientCode,
 									'appVer': details.url.match(/app\.(.*)\.js/)[1]
