@@ -47,21 +47,6 @@ function patchAppCode(appCode) {
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
 			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
-		},
-		{
-			name: "Bush alpha",
-			from: /residue:\"img\/map\/map-bush-res-01.svg\",scale:.5,alpha:.97/g,
-			to: 'residue:"img/map/map-bush-res-01.svg",scale:.5,alpha:.5'
-		},
-		{
-			name: "Tree_01 alpha",
-			from: /residue\:\"img\/map\/map\-tree\-res\.svg\"\,scale\:\.7\,alpha\:1/g,
-			to: 'residue:"img/map/map-tree-res.svg",scale:.7,alpha:0.5'
-		},
-		{
-			name: "Tree_02 alpha",
-			from: /sprite\:\"img\/map\/map\-tree\-03\.svg\"\,residue\:\"img\/map\/map\-tree\-res\.svg\"\,scale\:1\,alpha\:1/g,
-			to: 'sprite:"img/map/map-tree-03.svg",residue:"img/map/map-tree-res.svg",scale:1,alpha:0.5'
 		}
 	]
 

@@ -17,13 +17,6 @@ var aimInit = function(exports, game) {
 
 	// Bullets width
 	var bullets = findVariable("bullets", exports);
-	// if(bullets) {
-	// 	Object.keys(bullets).forEach(function(key, index) {
-	// 		bullets[key].tracerWidth = 0.2;
-	// 	});
-	// } else {
-	// 	console.log("Bullets width not patched");
-	// }
 
 	// Gernage size and color
 	var items = findVariable("items", exports);
@@ -37,8 +30,18 @@ var aimInit = function(exports, game) {
 	var bagSizes = findVariable("bagSizes", exports);
 	if(!bagSizes) {
 		bagSizes = {
-
-		}
+        	"9mm": 			[120, 240, 330, 420],
+            "762mm": 		[90, 180, 240, 300],
+            "556mm": 		[90, 180, 240, 300],
+            "12gauge": 		[15, 30, 60, 90],
+            "50AE": 		[42, 84, 126, 168],
+            "frag": 		[3, 6, 9, 12],
+            "smoke": 		[3, 6, 9, 12],
+            "bandage": 		[5, 10, 15, 30],
+            "healthkit": 	[1, 2, 3, 4],
+            "soda": 		[2, 5, 10, 15],
+            "painkiller": 	[1, 2, 3, 4]
+        }
 	}
 
 	// Scope zoom radius
@@ -61,6 +64,13 @@ var aimInit = function(exports, game) {
 				});
 			}
 		});
+
+		defsParticles["bush_01"].img.alpha = 0.5;
+		defsParticles["bush_02"].img.alpha = 0.5;
+		defsParticles["bush_03"].img.alpha = 0.5;
+
+		defsParticles["tree_01"].img.alpha = 0.5;
+		defsParticles["tree_02"].img.alpha = 0.5;		
 	} else {
 		console.log("Ceiling alpha not patched")
 	}
@@ -105,8 +115,6 @@ var aimInit = function(exports, game) {
 		return result;
 	}
 
-	// six coeffs
-	// max effective distance is 64
 	var calculateHornerPoly = function(distance, coeffs) {
 		var result = distance * coeffs[coeffs.length - 1];
 
@@ -246,12 +254,9 @@ var aimInit = function(exports, game) {
 				} else {
 					if(!game.scope.input.keys["70"]) {
 						game.scope.input.keys["70"] = true;
-						// todo: try to delete else
 					} else {
 						delete game.scope.input.keys["70"];
 					}
-
-					return;
 				}
 			}
 
@@ -262,13 +267,10 @@ var aimInit = function(exports, game) {
 				} else {
 					if(!game.scope.input.keys["70"]) {
 						game.scope.input.keys["70"] = true;
-						// todo: try to delete else
 					} else {
 						delete game.scope.input.keys["70"];
 					}
 				}
-
-				return;
 			};
 
 			/*
@@ -285,9 +287,7 @@ var aimInit = function(exports, game) {
 
 				if(!game.scope.activePlayer.netData[lootname]) {
 					if(!game.scope.input.keys["70"]) {
-						console.log("Try to collect");
 						game.scope.input.keys["70"] = true;
-						// todo: try to delete else
 					} else {
 						delete game.scope.input.keys["70"];
 					}
@@ -296,32 +296,29 @@ var aimInit = function(exports, game) {
 				};
 
 				var ownLootLevel = parseInt(game.scope.activePlayer.netData[lootname].slice(-2), 10);
-
 				if( ownLootLevel >= lootLevel) {
 					return;
 				} else {
 					if(!game.scope.input.keys["70"]) {
 						game.scope.input.keys["70"] = true;
-						// todo: try to delete else
 					} else {
 						delete game.scope.input.keys["70"];
 					}
-
-					return;
 				}
 			};
 		}
 	}
 
-	var iterate = function() {
-		// check if we in game
-		// todo: add check function
-		if(game.scope.gameOver !== false) {
-			disableCheat();
-			return;
-		}
+	var gameOver = function() {
+		return !!game.scope.gameOver;
+	}
 
-		updateState(detectEnemies());
+	var iterate = function() {
+		if(!gameOver()) {
+			updateState(detectEnemies());	
+		} else {
+			disableCheat();
+		}
 		
 		if(state.new) {
 			game.scope.input.mousePos = state.targetMousePosition;
@@ -329,51 +326,48 @@ var aimInit = function(exports, game) {
 	}
 
 	var iterateLootPicker = function() {
-		pickupLoot();
+		if(!gameOver()) {
+			pickupLoot();
+		}
 	}
 
-	var addSpaceKeyListener = function() {
-		window.addEventListener("keydown", function(event) {
+	var spaceKeyListeners = {
+		keydown: function(event) {
 			if(event.which == 32) {
 				game.scope.input.mouseButton = true;
 			}
-		});
-
-		window.addEventListener("keyup", function(event) {
+		},
+		keyup: function(event) {
 			if(event.which == 32) {
 				game.scope.input.mouseButton = false;
 			}
-		});
+		}
+	};
+
+	var addSpaceKeyListener = function() {
+		window.addEventListener("keydown", spaceKeyListeners.keydown);
+		window.addEventListener("keyup", spaceKeyListeners.keyup);
 	}
 
 	var removeSpaceKeyListener = function() {
-		window.removeEventListener("keydown", function(event) {
-			if(event.which == 32) {
-				game.scope.input.mouseButton = true;
-			}
-		});
-
-		window.removeEventListener("keyup", function(event) {
-			if(event.which == 32) {
-				game.scope.input.mouseButton = false;
-			}
-		});
+		window.removeEventListener("keydown", spaceKeyListeners.keydown);
+		window.removeEventListener("keyup", spaceKeyListeners.keyup);
 	}
 
-	var addOKeyListener = function() {
-		window.addEventListener("keyup", function(event) {
+	var oKeyListener = {
+		keyup: function(event) {
 			if(event.which == 79) {
 				state.captureEnemyMode = !state.captureEnemyMode;
 			}
-		});
+		}
+	};
+
+	var addOKeyListener = function() {
+		window.addEventListener("keyup", oKeyListener.keyup);
 	}
 
 	var removeOKeyListener = function() {
-		window.removeEventListener("keyup", function(event) {
-			if(event.which == 79) {
-				state.captureEnemyMode = !state.captureEnemyMode;
-			}
-		});
+		window.removeEventListener("keyup", oKeyListener.keyup);
 	}
 
 	var timer = null;
@@ -391,15 +385,8 @@ var aimInit = function(exports, game) {
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
 
-	var bindCheatListeners = function() {
-		// not working? bind needed?
-		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
-		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
-
-		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
-		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
-
-		window.addEventListener("mousedown", function(event) {
+	var mouseListener = {
+		mousedown: function(event) {
 			if(!event.button && state.new) {
 				game.scope.input.mousePos = state.targetMousePosition;
 				game.scope.input.mouseButtonOld = false;
@@ -407,13 +394,23 @@ var aimInit = function(exports, game) {
 			} else {
 				defaultBOnMouseDown(event);
 			}
-		});
-
-		window.addEventListener("mousemove", function(event) {
+		},
+		mousemove: function(event) {
 			if(!state.new) {
 				defaultBOnMouseMove(event);
 			}
-		});
+		}
+	};
+
+	var bindCheatListeners = function() {
+		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
+		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
+
+		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
+		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
+
+		window.addEventListener("mousedown", mouseListener.mousedown);
+		window.addEventListener("mousemove", mouseListener.mousemove);
 
 		removeSpaceKeyListener();
 		addSpaceKeyListener();
@@ -423,21 +420,8 @@ var aimInit = function(exports, game) {
 	}
 
 	var unbindCheatListeners = function() {
-		window.removeEventListener("mousedown", function(event) {
-			if(!event.button && state.new) {
-				game.scope.input.mousePos = state.targetMousePosition;
-				game.scope.input.mouseButtonOld = false;
-				game.scope.input.mouseButton = true;
-			} else {
-				defaultBOnMouseDown(event);
-			}
-		});
-
-		window.removeEventListener("mousemove", function(event) {
-			if(!state.new) {
-				defaultBOnMouseMove(event);
-			}
-		});
+		window.removeEventListener("mousedown", mouseListener.mousedown);
+		window.removeEventListener("mousemove", mouseListener.mousemove);
 
 		window.addEventListener("mousedown", defaultBOnMouseDown);
 		window.addEventListener("mousemove", defaultBOnMouseMove);
@@ -448,7 +432,7 @@ var aimInit = function(exports, game) {
 
 	var cheatEnabled = false;
 	function enableCheat() {
-		if(game.scope && game.scope.gameOver === false) {			
+		if(game.scope && !gameOver()) {			
 			bindCheatListeners();
 
 			cheatEnabled = true;
@@ -459,8 +443,8 @@ var aimInit = function(exports, game) {
 			}
 
 			if(lootTimer) {
-				clearTimeout(timer);
-				timer = null;	
+				clearTimeout(lootTimer);
+				lootTimer = null;	
 			}
 
 			ticker();
@@ -488,13 +472,8 @@ var aimInit = function(exports, game) {
 		console.log("Cheat menu");
 	}
 
-	// todo: on game started
-	// todo: check if game.scope exists at one point
-	var addZKeyListener = function() {
-		var zKeyDowned = false;
-		var cheatMenuTimer = null;
-
-		window.addEventListener("keyup", function(event) {
+	var zKeyListener = {
+		keyup: function(event) {
 			if(event.which == 90) {
 				if(cheatEnabled) {
 					disableCheat();
@@ -502,22 +481,20 @@ var aimInit = function(exports, game) {
 					enableCheat();
 				}
 			}
-		});
+		}
+	}
+	var addZKeyListener = function() {
+		var zKeyDowned = false;
+		var cheatMenuTimer = null;
+
+		window.addEventListener("keyup", zKeyListener.keyup);
 	}
 
 	var removeZKeyListener = function() {
 		var zKeyDowned = false;
 		var cheatMenuTimer = null;
 
-		window.removeEventListener("keyup", function(event) {
-			if(event.which == 90) {
-				if(cheatEnabled) {
-					disableCheat();
-				} else {
-					enableCheat();
-				}
-			}
-		});
+		window.removeEventListener("keyup", zKeyListener.keyup);
 	}
 
 	removeZKeyListener();
