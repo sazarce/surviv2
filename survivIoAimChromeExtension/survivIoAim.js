@@ -70,7 +70,10 @@ var aimInit = function(exports, game) {
 		defsParticles["bush_03"].img.alpha = 0.5;
 
 		defsParticles["tree_01"].img.alpha = 0.5;
-		defsParticles["tree_02"].img.alpha = 0.5;		
+		defsParticles["tree_02"].img.alpha = 0.5;
+		
+		defsParticles["table_01"].img.alpha = 0.5;
+		defsParticles["table_02"].img.alpha = 0.5;		
 	} else {
 		console.log("Ceiling alpha not patched")
 	}
