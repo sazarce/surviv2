@@ -2,7 +2,7 @@ var aimInit = function(exports, game) {
 
 	if(!exports) return;
 	
-	setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);console.log(exports);}}, 2000);
+	// setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);console.log(exports);}}, 2000);
 	// todo: another getting algo
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
@@ -282,9 +282,7 @@ var aimInit = function(exports, game) {
 
 				var lootname = game.scope.lootBarn.closestLoot.name.slice(0, -2);
 				var lootLevel = parseInt(game.scope.lootBarn.closestLoot.name.slice(-2), 10);
-				console.log(lootname);
-				console.log(lootLevel);
-				console.log(!game.scope.activePlayer.netData[lootname]);
+
 				if(!game.scope.activePlayer.netData[lootname]) {
 					if(!game.scope.input.keys["70"]) {
 						console.log("Try to collect");
@@ -298,7 +296,7 @@ var aimInit = function(exports, game) {
 				};
 
 				var ownLootLevel = parseInt(game.scope.activePlayer.netData[lootname].slice(-2), 10);
-				console.log(ownLootLevel);
+
 				if( ownLootLevel >= lootLevel) {
 					return;
 				} else {
@@ -452,7 +450,7 @@ var aimInit = function(exports, game) {
 	function enableCheat() {
 		if(game.scope && game.scope.gameOver === false) {			
 			bindCheatListeners();
-			console.log("Bining autopickup");
+
 			cheatEnabled = true;
 
 			if(timer) {
