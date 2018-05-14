@@ -192,6 +192,7 @@ function updateAppCode(url, onSuccess, onError) {
 
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
+		// todo: if request has been sended
 		if(details.url.match(/manifest/)) {
 			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
 				if(manifestCode.manifestCode === undefined) {

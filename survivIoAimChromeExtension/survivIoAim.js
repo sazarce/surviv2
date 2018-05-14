@@ -2,7 +2,8 @@ var aimInit = function(exports, game) {
 
 	if(!exports) return;
 	
-	// setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);}}, 2000);
+	setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);console.log(exports);}}, 2000);
+	// todo: another getting algo
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
 		for(var i = 0; i < keys.length; i++) {
@@ -16,13 +17,13 @@ var aimInit = function(exports, game) {
 
 	// Bullets width
 	var bullets = findVariable("bullets", exports);
-	if(bullets) {
-		Object.keys(bullets).forEach(function(key, index) {
-			bullets[key].tracerWidth = 0.2;
-		});
-	} else {
-		console.log("Bullets width not patched");
-	}
+	// if(bullets) {
+	// 	Object.keys(bullets).forEach(function(key, index) {
+	// 		bullets[key].tracerWidth = 0.2;
+	// 	});
+	// } else {
+	// 	console.log("Bullets width not patched");
+	// }
 
 	// Gernage size and color
 	var items = findVariable("items", exports);
@@ -31,6 +32,13 @@ var aimInit = function(exports, game) {
 		items.frag.worldImg.scale = 0.3;
 	} else {
 		console.log("Gernage size and color not patched");
+	}
+
+	var bagSizes = findVariable("bagSizes", exports);
+	if(!bagSizes) {
+		bagSizes = {
+
+		}
 	}
 
 	// Scope zoom radius
@@ -218,8 +226,98 @@ var aimInit = function(exports, game) {
 		}
 	}
 
+	var pickupLoot = function() {
+		if(game.scope.lootBarn.closestLoot && game.scope.lootBarn.closestLoot.active) {
+			if(	/mm/.test(game.scope.lootBarn.closestLoot.name) ||
+				/12gauge/.test(game.scope.lootBarn.closestLoot.name) ||
+				/50AE/.test(game.scope.lootBarn.closestLoot.name) ||
+				/bandage/.test(game.scope.lootBarn.closestLoot.name) ||
+				/soda/.test(game.scope.lootBarn.closestLoot.name) ||
+				/painkiller/.test(game.scope.lootBarn.closestLoot.name) ||
+				/smoke/.test(game.scope.lootBarn.closestLoot.name) ||
+				/frag/.test(game.scope.lootBarn.closestLoot.name) ||
+				/healthkit/.test(game.scope.lootBarn.closestLoot.name)) {
+
+				var ownBagIndex = !!game.scope.activePlayer.netData.backpack ? parseInt(game.scope.activePlayer.netData.backpack.slice(-2), 10) : 0;
+				var bagSize = bagSizes[game.scope.lootBarn.closestLoot.name][ownBagIndex];
+
+				if(game.scope.activePlayer.localData.inventory[game.scope.lootBarn.closestLoot.name] === bagSize) {
+					return;
+				} else {
+					if(!game.scope.input.keys["70"]) {
+						game.scope.input.keys["70"] = true;
+						// todo: try to delete else
+					} else {
+						delete game.scope.input.keys["70"];
+					}
+
+					return;
+				}
+			}
+
+			if(/scope/.test(game.scope.lootBarn.closestLoot.name)) {
+				var scopeLevel = parseInt(game.scope.lootBarn.closestLoot.name.slice(0, -6), 10);
+				if(game.scope.activePlayer.localData.inventory[game.scope.lootBarn.closestLoot.name]) {
+					return;
+				} else {
+					if(!game.scope.input.keys["70"]) {
+						game.scope.input.keys["70"] = true;
+						// todo: try to delete else
+					} else {
+						delete game.scope.input.keys["70"];
+					}
+				}
+
+				return;
+			};
+
+			/*
+				helmet01
+				chest01
+				backpack01
+			*/
+			if(	/helmet/.test(game.scope.lootBarn.closestLoot.name) ||
+				/chest/.test(game.scope.lootBarn.closestLoot.name) ||
+				/backpack/.test(game.scope.lootBarn.closestLoot.name)) {
+
+				var lootname = game.scope.lootBarn.closestLoot.name.slice(0, -2);
+				var lootLevel = parseInt(game.scope.lootBarn.closestLoot.name.slice(-2), 10);
+				console.log(lootname);
+				console.log(lootLevel);
+				console.log(!game.scope.activePlayer.netData[lootname]);
+				if(!game.scope.activePlayer.netData[lootname]) {
+					if(!game.scope.input.keys["70"]) {
+						console.log("Try to collect");
+						game.scope.input.keys["70"] = true;
+						// todo: try to delete else
+					} else {
+						delete game.scope.input.keys["70"];
+					}
+
+					return;
+				};
+
+				var ownLootLevel = parseInt(game.scope.activePlayer.netData[lootname].slice(-2), 10);
+				console.log(ownLootLevel);
+				if( ownLootLevel >= lootLevel) {
+					return;
+				} else {
+					if(!game.scope.input.keys["70"]) {
+						game.scope.input.keys["70"] = true;
+						// todo: try to delete else
+					} else {
+						delete game.scope.input.keys["70"];
+					}
+
+					return;
+				}
+			};
+		}
+	}
+
 	var iterate = function() {
 		// check if we in game
+		// todo: add check function
 		if(game.scope.gameOver !== false) {
 			disableCheat();
 			return;
@@ -230,7 +328,11 @@ var aimInit = function(exports, game) {
 		if(state.new) {
 			game.scope.input.mousePos = state.targetMousePosition;
 		}
-	}	
+	}
+
+	var iterateLootPicker = function() {
+		pickupLoot();
+	}
 
 	var addSpaceKeyListener = function() {
 		window.addEventListener("keydown", function(event) {
@@ -280,12 +382,19 @@ var aimInit = function(exports, game) {
 	function ticker() {
 		timer = setTimeout(ticker, 10);
 		iterate();
-	}	
+	}
+
+	var lootTimer = null;
+	function lootTicker() {
+		lootTimer = setTimeout(lootTicker, 75);
+		iterateLootPicker();
+	}
 
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
 
 	var bindCheatListeners = function() {
+		// not working? bind needed?
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
 		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
 
@@ -343,13 +452,21 @@ var aimInit = function(exports, game) {
 	function enableCheat() {
 		if(game.scope && game.scope.gameOver === false) {			
 			bindCheatListeners();
+			console.log("Bining autopickup");
 			cheatEnabled = true;
 
 			if(timer) {
 				clearTimeout(timer);
 				timer = null;
 			}
+
+			if(lootTimer) {
+				clearTimeout(timer);
+				timer = null;	
+			}
+
 			ticker();
+			lootTicker();
 		}
 	}
   
@@ -357,6 +474,11 @@ var aimInit = function(exports, game) {
 		if(timer) {
 			clearTimeout(timer);
 			timer = null;
+		}
+
+		if(lootTimer) {
+			clearTimeout(lootTimer);
+			lootTimer = null;
 		}
 
 		unbindCheatListeners();
@@ -368,6 +490,8 @@ var aimInit = function(exports, game) {
 		console.log("Cheat menu");
 	}
 
+	// todo: on game started
+	// todo: check if game.scope exists at one point
 	var addZKeyListener = function() {
 		var zKeyDowned = false;
 		var cheatMenuTimer = null;
