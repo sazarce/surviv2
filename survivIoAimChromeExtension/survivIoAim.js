@@ -28,8 +28,6 @@ var aimInit = function(exports, game) {
 			setTimeout(function() {
 				game.scope.input.keys["70"] = true;
 				setTimeout(function() {
-					console.log("deletePressF");
-					console.log(game.scope.input.keys["70"]);
 					delete game.scope.input.keys["70"]}, 50);
 			}, 50);
 		}
@@ -37,7 +35,6 @@ var aimInit = function(exports, game) {
 
 	emitActionCb = function() {
 		if(interactionEmitter) {
-			console.log(interactionEmitter);
 			switch(interactionEmitter.__type) {
 				case interactionTypes.Obstacle:
 					if(interactionEmitter.hasOwnProperty('door')) {
