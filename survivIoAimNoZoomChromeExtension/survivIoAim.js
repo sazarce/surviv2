@@ -2,7 +2,9 @@ var aimInit = function(exports, game) {
 
 	if(!exports) return;
 	
-	// setInterval(function(){if(game.scope && game.scope.activePlayer){console.log(game.scope);console.log(exports);}}, 2000);
+	// setInterval(function(){if(game.scope && game.scope.activePlayer){
+	// 	console.log(game.scope);console.log(exports);
+	// }}, 2000);
 	// todo: another getting algo
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
@@ -14,6 +16,40 @@ var aimInit = function(exports, game) {
 
 		return null;
 	};
+	
+	var interactionTypes = {
+        Obstacle: 2,
+        Loot: 3,
+        // DeadBody: 5,
+	};
+
+	var pressF = function() {
+		if(!game.scope.input.keys["70"]) {
+			setTimeout(function() {
+				game.scope.input.keys["70"] = true;
+				setTimeout(function() {
+					console.log("deletePressF");
+					console.log(game.scope.input.keys["70"]);
+					delete game.scope.input.keys["70"]}, 50);
+			}, 50);
+		}
+	}
+
+	emitActionCb = function() {
+		if(interactionEmitter) {
+			console.log(interactionEmitter);
+			switch(interactionEmitter.__type) {
+				case interactionTypes.Obstacle:
+					if(interactionEmitter.hasOwnProperty('door')) {
+						pressF();
+					}
+				break;
+				case interactionTypes.Loot:
+					pickupLoot();
+				break;
+			}
+		}
+	};
 
 	// Bullets width
 	var bullets = findVariable("bullets", exports);
@@ -22,7 +58,7 @@ var aimInit = function(exports, game) {
 	var items = findVariable("items", exports);
 	if(items) {
 		items.frag.worldImg.tint = 16711680;
-		items.frag.worldImg.scale = 0.3;
+		items.frag.worldImg.scale = 0.31;
 	} else {
 		console.log("Gernage size and color not patched");
 	}
@@ -44,7 +80,7 @@ var aimInit = function(exports, game) {
         }
 	}
 
-	// // Scope zoom radius
+	// Scope zoom radius
 	// var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
 	// if(scopeZoomRadius) {
 	// 	scopeZoomRadius["1xscope"] = 68;
@@ -70,7 +106,10 @@ var aimInit = function(exports, game) {
 		defsParticles["bush_03"].img.alpha = 0.5;
 
 		defsParticles["tree_01"].img.alpha = 0.5;
-		defsParticles["tree_02"].img.alpha = 0.5;		
+		defsParticles["tree_02"].img.alpha = 0.5;
+		
+		defsParticles["table_01"].img.alpha = 0.5;
+		defsParticles["table_02"].img.alpha = 0.5;
 	} else {
 		console.log("Ceiling alpha not patched")
 	}
@@ -252,11 +291,7 @@ var aimInit = function(exports, game) {
 				if(game.scope.activePlayer.localData.inventory[game.scope.lootBarn.closestLoot.name] === bagSize) {
 					return;
 				} else {
-					if(!game.scope.input.keys["70"]) {
-						game.scope.input.keys["70"] = true;
-					} else {
-						delete game.scope.input.keys["70"];
-					}
+					pressF();
 				}
 			}
 
@@ -265,11 +300,7 @@ var aimInit = function(exports, game) {
 				if(game.scope.activePlayer.localData.inventory[game.scope.lootBarn.closestLoot.name]) {
 					return;
 				} else {
-					if(!game.scope.input.keys["70"]) {
-						game.scope.input.keys["70"] = true;
-					} else {
-						delete game.scope.input.keys["70"];
-					}
+					pressF();
 				}
 			};
 
@@ -286,12 +317,7 @@ var aimInit = function(exports, game) {
 				var lootLevel = parseInt(game.scope.lootBarn.closestLoot.name.slice(-2), 10);
 
 				if(!game.scope.activePlayer.netData[lootname]) {
-					if(!game.scope.input.keys["70"]) {
-						game.scope.input.keys["70"] = true;
-					} else {
-						delete game.scope.input.keys["70"];
-					}
-
+					pressF();
 					return;
 				};
 
@@ -299,11 +325,7 @@ var aimInit = function(exports, game) {
 				if( ownLootLevel >= lootLevel) {
 					return;
 				} else {
-					if(!game.scope.input.keys["70"]) {
-						game.scope.input.keys["70"] = true;
-					} else {
-						delete game.scope.input.keys["70"];
-					}
+					pressF();
 				}
 			};
 		}
@@ -322,12 +344,6 @@ var aimInit = function(exports, game) {
 		
 		if(state.new) {
 			game.scope.input.mousePos = state.targetMousePosition;
-		}
-	}
-
-	var iterateLootPicker = function() {
-		if(!gameOver()) {
-			pickupLoot();
 		}
 	}
 
@@ -374,12 +390,6 @@ var aimInit = function(exports, game) {
 	function ticker() {
 		timer = setTimeout(ticker, 10);
 		iterate();
-	}
-
-	var lootTimer = null;
-	function lootTicker() {
-		lootTimer = setTimeout(lootTicker, 75);
-		iterateLootPicker();
 	}
 
 	var defaultBOnMouseDown = function(event) {};
@@ -442,13 +452,7 @@ var aimInit = function(exports, game) {
 				timer = null;
 			}
 
-			if(lootTimer) {
-				clearTimeout(lootTimer);
-				lootTimer = null;	
-			}
-
 			ticker();
-			lootTicker();
 		}
 	}
   
@@ -456,11 +460,6 @@ var aimInit = function(exports, game) {
 		if(timer) {
 			clearTimeout(timer);
 			timer = null;
-		}
-
-		if(lootTimer) {
-			clearTimeout(lootTimer);
-			lootTimer = null;
 		}
 
 		unbindCheatListeners();

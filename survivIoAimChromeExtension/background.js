@@ -21,8 +21,20 @@ function patchManifestCode(manifestCode) {
 }
 
 function wrapAppCode(appCode) {
-	var variables = 'var game={scope:null};var exports=window.exports;var bullets=null;';
+	/*
+		game.scope: actual game state
+		exports: 	game constants and additional functions
+		bullets: 	bullets constants
+		doorDetectionCb: 
+	*/
+	var variables = '';
+	variables += 'var game={scope:null};';
+	variables += 'var exports=window.exports;';
+	variables += 'var bullets=null;';
+	variables += 'var interactionEmitter=null;';
+	variables += 'var emitActionCb=function(){};';
 
+	// todo: delete variables
 	appCode = '(function(){' + variables + appCode + '\n(' + aimInit + ')(exports, game);' + '})();';
 
 	return appCode;
@@ -47,8 +59,20 @@ function patchAppCode(appCode) {
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
 			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
+		},
+		{
+			name: "Action emitter export",
+			from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([a-z])\),/g,
+			to: '$1.interaction.text=this.getInteractionText($2,$3),interactionEmitter=$3,'
+		},
+		{
+			name: "Action emittion export",
+			// from: /([a-z])\.interaction\.type\&\&\(([a-z])\.interaction\.div\.style\.display\=([a-z])\.interaction\.type\=\=([A-Z])\.None\?\"none\"\:\"flex\"\)/g,
+			from: /([a-z]).interaction.text&&\(([a-z]).interaction.text.innerHTML=([a-z]).interaction.text\)/g,
+			// to: '$1.interaction.type&&($2.interaction.div.style.display=$3.interaction.type==$4.None?"none":(emitActionCb(),"flex"))'
+			to: 'e.interaction.text&&(a.interaction.text.innerHTML=t.interaction.text,emitActionCb())'
 		}
-	]
+	];
 
 	patchRules.forEach(function(item) {
 		if(item.from.test(appCode)) {
