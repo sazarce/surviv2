@@ -1,10 +1,16 @@
 
+var variableNames = {};
+variableNames.game = '_' + Math.random().toString(36).substring(7);
+variableNames.exports = '_' + Math.random().toString(36).substring(7);
+variableNames.interactionEmitter = '_' + Math.random().toString(36).substring(7);
+variableNames.emitActionCb = '_' + Math.random().toString(36).substring(7);
+
 function patchManifestCode(manifestCode) {
 	var patchRules = [
 		{
 			name: "Exports exports scope",
 			from: /var ([a-z])={},(.*?);/g,
-			to: 'var $1={},$2;window.exports=$1;'
+			to: 'var $1={},$2;window["' + variableNames.exports + '"]=$1;'
 		}
 	];
 
@@ -22,32 +28,53 @@ function patchManifestCode(manifestCode) {
 
 function wrapAppCode(appCode) {
 	/*
-		game.scope: actual game state
-		exports: 	game constants and additional functions
-		bullets: 	bullets constants
-		doorDetectionCb: 
+		game: 		 		actual game state
+		exports: 			game constants and additional functions
+		interactionEmitter: object which you may interact
+		emitActionCb: 		calling when you may interact with interactionEmitter
 	*/
-	var variables = '';
-	variables += 'var game={scope:null};';
-	variables += 'var exports=window.exports;';
-	variables += 'var bullets=null;';
-	variables += 'var interactionEmitter=null;';
-	variables += 'var emitActionCb=function(){};';
+	
+	var wrapCode = '';
 
-	// todo: delete variables
-	appCode = '(function(){' + variables + appCode + '\n(' + aimInit + ')(exports, game);' + '})();';
+	wrapCode = '(function(';
+	wrapCode = wrapCode + variableNames.game + ',';
+	wrapCode = wrapCode + variableNames.exports + ',';
+	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
+	wrapCode = wrapCode + variableNames.emitActionCb + '){';
+
+	appCode = wrapCode + appCode;
+
+	wrapCode = '\n(' + aimInit + ')(';
+	wrapCode = wrapCode + variableNames.game + ',';
+	wrapCode = wrapCode + variableNames.exports + ',';
+	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
+	wrapCode = wrapCode + variableNames.emitActionCb + ');';
+	wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {});'; 
+
+	appCode = appCode + wrapCode;
 
 	return appCode;
 }
 
 function patchAppCode(appCode) {
+
 	appCode = wrapAppCode(appCode);
 
 	var patchRules = [
 		{
 			name: "Export game scope",
 			from: /init:function\(\){var ([a-z]),([a-z])=this.pixi.renderer/,
-			to: 'init:function(){game.scope=this;var $1,$2=this.pixi.renderer'
+			to: 'init:function(){' + variableNames.game + '.scope=this;var $1,$2=this.pixi.renderer'
+		},
+		{
+			name: "Action emitter export",
+			from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([a-z])\),/g,
+			to: '$1.interaction.text=this.getInteractionText($2,$3),' + variableNames.interactionEmitter + '.scope=$3,'
+		},
+		{
+			name: "Action emittion export",
+			from: /([a-z]).interaction.text&&\(([a-z]).interaction.text.innerHTML=([a-z]).interaction.text\)/g,
+			to: 'e.interaction.text&&(a.interaction.text.innerHTML=t.interaction.text,' + variableNames.emitActionCb + '.scope())'
 		},
 
 		{
@@ -59,18 +86,6 @@ function patchAppCode(appCode) {
 			name: "Smoke gernage alpha",
 			from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
 			to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
-		},
-		{
-			name: "Action emitter export",
-			from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([a-z])\),/g,
-			to: '$1.interaction.text=this.getInteractionText($2,$3),interactionEmitter=$3,'
-		},
-		{
-			name: "Action emittion export",
-			// from: /([a-z])\.interaction\.type\&\&\(([a-z])\.interaction\.div\.style\.display\=([a-z])\.interaction\.type\=\=([A-Z])\.None\?\"none\"\:\"flex\"\)/g,
-			from: /([a-z]).interaction.text&&\(([a-z]).interaction.text.innerHTML=([a-z]).interaction.text\)/g,
-			// to: '$1.interaction.type&&($2.interaction.div.style.display=$3.interaction.type==$4.None?"none":(emitActionCb(),"flex"))'
-			to: 'e.interaction.text&&(a.interaction.text.innerHTML=t.interaction.text,emitActionCb())'
 		}
 	];
 
@@ -201,7 +216,6 @@ function updateAppCode(url, onSuccess, onError) {
 
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
-		// todo: if request has been sended
 		if(details.url.match(/manifest/)) {
 			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
 				if(manifestCode.manifestCode === undefined) {

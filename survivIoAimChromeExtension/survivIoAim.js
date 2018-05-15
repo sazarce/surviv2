@@ -1,11 +1,18 @@
-var aimInit = function(exports, game) {
+var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 
 	if(!exports) return;
-	
+	emitActionCb.scope = function() {};
+
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
 	// 	console.log(game.scope);console.log(exports);
 	// }}, 2000);
-	// todo: another getting algo
+
+	var interactionTypes = {
+        Obstacle: 2,
+        Loot: 3,
+        // DeadBody: 5,
+	};
+
 	function findVariable(name, exports) {
 		var keys = Object.keys(exports);
 		for(var i = 0; i < keys.length; i++) {
@@ -16,28 +23,23 @@ var aimInit = function(exports, game) {
 
 		return null;
 	};
-	
-	var interactionTypes = {
-        Obstacle: 2,
-        Loot: 3,
-        // DeadBody: 5,
-	};
 
 	var pressF = function() {
 		if(!game.scope.input.keys["70"]) {
 			setTimeout(function() {
 				game.scope.input.keys["70"] = true;
 				setTimeout(function() {
-					delete game.scope.input.keys["70"]}, 50);
+					delete game.scope.input.keys["70"]
+				}, 50);
 			}, 50);
 		}
 	}
 
-	emitActionCb = function() {
-		if(interactionEmitter) {
-			switch(interactionEmitter.__type) {
+	emitActionCb.scope = function() {
+		if(interactionEmitter.scope) {
+			switch(interactionEmitter.scope.__type) {
 				case interactionTypes.Obstacle:
-					if(interactionEmitter.hasOwnProperty('door')) {
+					if(interactionEmitter.scope.hasOwnProperty('door')) {
 						pressF();
 					}
 				break;
@@ -48,7 +50,7 @@ var aimInit = function(exports, game) {
 		}
 	};
 
-	// Bullets width
+	// Bullets properties
 	var bullets = findVariable("bullets", exports);
 
 	// Gernage size and color
@@ -79,13 +81,18 @@ var aimInit = function(exports, game) {
 
 	// Scope zoom radius
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
-	if(scopeZoomRadius) {
-		scopeZoomRadius["1xscope"] = 68;
-		scopeZoomRadius["2xscope"] = 68;
-		scopeZoomRadius["4xscope"] = 68;
-	} else {
-		console.log("Scope zoom and radius not patched");
-	}
+	var setZoomRadius = function(radius) {
+		if(scopeZoomRadius) {
+			scopeZoomRadius["1xscope"] = radius;
+			scopeZoomRadius["2xscope"] = radius;
+			scopeZoomRadius["4xscope"] = radius;
+			scopeZoomRadius["8xscope"] = radius;
+			scopeZoomRadius["15xscope"] = radius;
+		} else {
+			console.log("Scope zoom and radius not patched");
+		}
+	};
+	setZoomRadius(68);
 
 	// Ceiling alpha
 	var defsParticles = findVariable("Defs", exports);
@@ -128,6 +135,7 @@ var aimInit = function(exports, game) {
 		}
 	}
 
+	// todo: not detect on different levels
 	var detectEnemies = function() {
 		var result = [];
 		if(!game.scope.playerBarn.playerInfo[game.scope.activeId]) return result;
@@ -325,6 +333,14 @@ var aimInit = function(exports, game) {
 					pressF();
 				}
 			};
+
+			/*
+				Guns
+			*/
+			if(game.scope.activePlayer.localData.weapons[0].name == "" ||
+			   game.scope.activePlayer.localData.weapons[1].name == "") {
+				pressF();
+			}
 		}
 	}
 
