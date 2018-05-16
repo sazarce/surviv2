@@ -235,22 +235,28 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		}		
 	}
 
+	var captureEnemyMode = false;
 	var getNewState = function() {
 		var state = [];
-		// for(var i = 0; i < )
-		return {
-			playerId: null, // Enemy id
-			distance: null,
-			radianAngle: null,
-			prevRadianAngle: null,
-			pos: null,
-			prevPos: null,
-			new: null,
-			timestamp: null,
-			prevTimestamp: null,
-			targetMousePosition: null,
-			captureEnemyMode: false
-		}	
+		for(var i = 0; i < 4; i++) {
+			state.push({
+				playerId: null, // Enemy id
+				distance: null,
+				radianAngle: null,
+				pos: {
+					x: 0,
+					y: 0
+				},
+				timestamp: 0,
+				targetMousePosition: {
+					x: 0,
+					y: 0
+				}
+			});
+		}
+		state.new = null;
+		state.averageTargetMousePosition = null;
+		return state;
 	}
 	var state = getNewState();
 	var updateState = function(detectedEnemies) {
@@ -263,38 +269,40 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 			state.new = false;
 			return;
 		} else {
-			if(state.captureEnemyMode) {				
-				if(detectedEnemies[state.playerId]) {
-					var enemyPos = detectedEnemies[state.playerId].netData.pos;
+			state.new = true;
+			if(captureEnemyMode) {				
+				if(detectedEnemies[state[0].playerId]) {
+					var enemyPos = detectedEnemies[state[0].playerId].netData.pos;
 					var distance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 					var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
-					if(state.new) {
-						state.prevRadianAngle = state.radianAngle;
-						state.prevPos = state.pos;
-						state.prevTimestamp = state.timestamp;
-						state.timestamp = Date.now();
-					} else {
-						state.prevRadianAngle = radianAngle;
-						state.prevPos = enemyPos;
-						state.timestamp = Date.now();
-						state.prevTimestamp = state.timestamp;
+					state.unshift({
+						playerId: detectedEnemies[state[0].playerId],
+						distance: distance,
+						radianAngle: radianAngle,
+						pos: enemyPos,
+						timestamp: Date.now(),
+					});
+					state.pop();
+					state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
+					state.averageTargetMousePosition = {
+						x: 0,
+						y: 0
+					};
+
+					for(var i = 0; i < state.length; i++) {
+						state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
+						state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
 					}
 
-					state.new = true;
-					state.distance = distance;
-					state.radianAngle = radianAngle;
-					state.pos = enemyPos;
-
-					state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
-
+					state.averageTargetMousePosition.x /= state.length;
+					state.averageTargetMousePosition.y /= state.length;
 					return;
 				}
 			}
 
 			for(var i = 0; i < detectedEnemiesKeys.length; i++) {
 				var enemyPos = detectedEnemies[detectedEnemiesKeys[i]].netData.pos;
-
 				var distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
 				var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
@@ -303,30 +311,30 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 			}
 
 			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
-			if(state.playerId != detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id) {
-				state.playerId = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id;
-				state.distance = enemyDistances[minimalDistanceEnemyIndex];
-				state.prevRadianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
-				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
-				state.prevPos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
-				state.pos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
-				state.new = true;
-				state.timestamp = Date.now();
-				state.prevTimestamp = state.timestamp;
 
-				state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
-			} else {
-				state.distance = enemyDistances[minimalDistanceEnemyIndex];
-				state.prevRadianAngle = state.radianAngle;
-				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
-				state.prevPos = state.pos;
-				state.pos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
-				state.new = true;
-				state.prevTimestamp = state.timestamp;
-				state.timestamp = Date.now();
+			state.unshift({
+				playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
+				distance: enemyDistances[minimalDistanceEnemyIndex],
+				radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
+				pos: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos,
+				timestamp: Date.now(),
+			});
+			state.pop();
+			state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
+			state.averageTargetMousePosition = {
+				x: 0,
+				y: 0
+			};
 
-				state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
+			for(var i = 0; i < state.length; i++) {
+				state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
+				state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
 			}
+
+			state.averageTargetMousePosition.x /= state.length;
+			state.averageTargetMousePosition.y /= state.length;
+			
+			// todo: check equals playerId in all items of array
 		}
 	}
 
@@ -426,7 +434,7 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 	var oKeyListener = {
 		keyup: function(event) {
 			if(event.which == 79) {
-				state.captureEnemyMode = !state.captureEnemyMode;
+				captureEnemyMode = !captureEnemyMode;
 			}
 		}
 	};
@@ -445,7 +453,7 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 	var mouseListener = {
 		mousedown: function(event) {
 			if(!event.button && state.new) {
-				game.scope.input.mousePos = state.targetMousePosition;
+				game.scope.input.mousePos = state.averageTargetMousePosition;
 				game.scope.input.mouseButtonOld = false;
 				game.scope.input.mouseButton = true;
 			} else {
@@ -476,7 +484,8 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 
 			updateState(detectEnemies());
 			if(state.new) {
-				game.scope.input.mousePos = state.targetMousePosition;
+
+				game.scope.input.mousePos = state.averageTargetMousePosition;
 			}
 		};
 
@@ -530,7 +539,7 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 	function disableCheat() {
 		unbindCheatListeners();
 		cheatEnabled = false;
-		state.captureEnemyMode = false;
+		captureEnemyMode = false;
 	}
 
 	var openCheatMenu = function() {
