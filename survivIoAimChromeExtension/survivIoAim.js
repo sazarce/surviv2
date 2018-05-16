@@ -35,6 +35,7 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		}
 	}
 
+	// Auto-opening doors
 	emitActionCb.scope = function() {
 		if(interactionEmitter.scope) {
 			switch(interactionEmitter.scope.__type) {
@@ -42,9 +43,6 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 					if(interactionEmitter.scope.hasOwnProperty('door')) {
 						pressF();
 					}
-				break;
-				case interactionTypes.Loot:
-					pickupLoot();
 				break;
 			}
 		}
@@ -118,6 +116,9 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		console.log("Ceiling alpha not patched")
 	}
 
+	var playerBarn = findVariable("PlayerBarn", exports);
+	var lootBarn = findVariable("LootBarn", exports);
+
 	var calculateRadianAngle = function(cx, cy, ex, ey) {
 		var dy = ey - cy;
 		var dx = ex - cx;
@@ -125,6 +126,10 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		// theta *= 180 / Math.PI; // rads to degs, range (-180, 180]
 		// if (theta < 0) theta = 360 + theta; // range [0, 360)
 		return theta;
+	}
+
+	var calculateDistance = function(cx, cy, ex, ey) {
+		return Math.sqrt(Math.pow((cx - ex), 2) + Math.pow((cy - ey), 2));
 	}
 
 	var getSelfPos = function() {
@@ -181,44 +186,73 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 			polyCoeffs: [ 0, 1, 1/100, 1/10000, 1/1000000, 1/100000000 ]
 		}
 	};
-	var calculateTargetMousePosition = function(radianAngle, prevRadianAngle, distance) {
+
+	var calculateTargetMousePosition = function(enemyPos, enemyPosTimestamp,  prevEnemyPos, prevEnemyPosTimestamp, distance) {
+		var bulletSpeed = 0;
+		var bulletApproachTime = Infinity;
+		// Check if you not have a bullets
+		
+		if(items[game.scope.activePlayer.weapType].bulletType) {
+			bulletSpeed = bullets[items[game.scope.activePlayer.weapType].bulletType].speed;
+		} else {
+			bulletSpeed = 1000;
+		};
+
+		var selfPos = getSelfPos();
+
+		var predictionEnemyPos = {
+			x: enemyPos.x,
+			y: enemyPos.y
+		}
+		var predictionEnemyDistance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+		
+		var enemySpeed = {
+			x: (enemyPos.x - prevEnemyPos.x)/((enemyPosTimestamp - prevEnemyPosTimestamp + 1)/1000.0),
+			y: (enemyPos.y - prevEnemyPos.y)/((enemyPosTimestamp - prevEnemyPosTimestamp + 1)/1000.0)
+		}
+
+		for(var i = 0; i < 10; i++) {
+			bulletApproachTime = predictionEnemyDistance/bulletSpeed;
+			predictionEnemyPos = {
+				x: enemyPos.x + enemySpeed.x * bulletApproachTime,
+				y: enemyPos.y + enemySpeed.y * bulletApproachTime
+			};
+			predictionEnemyDistance = calculateDistance(selfPos.x, selfPos.y, predictionEnemyPos.x, predictionEnemyPos.y);
+			// distance = predictionEnemyDistance; // cycle
+		}
+
 		var halfScreenWidth = game.scope.camera.screenWidth/2;
 		var halfScreenHeight = game.scope.camera.screenHeight/2;
 
 		var minScreenCircleRadius = halfScreenHeight > halfScreenWidth ? halfScreenWidth : halfScreenHeight;
-		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);
+		minScreenCircleRadius = Math.floor(minScreenCircleRadius - 1);		
 
-		if(bullets["bullet_" + game.scope.activePlayer.weapType]) {		
-			// var bulletSpeedCoeff = bulletSpeedFactor/bullets["bullet_" + game.scope.activePlayer.weapType].speed;
-			// var polyDividerFactor = gunCorrectionFactors["bullet_" + game.scope.activePlayer.weapType];
-			var polyDividerFactor = gunCorrectionFactors.default.polyDividerFactor;
-			var bulletSpeedCoeff = gunCorrectionFactors.default.bulletSpeedFactor/bullets["bullet_" + game.scope.activePlayer.weapType].speed;
-			var polyCoeffs = gunCorrectionFactors.default.polyCoeffs;
-		} else {
-			var polyDividerFactor = gunCorrectionFactors.default.polyDividerFactor;
-			var bulletSpeedCoeff = 1;
-			var polyCoeffs = gunCorrectionFactors.default.polyCoeffs;
-		}
+		var predictionRadianAngle = calculateRadianAngle(selfPos.x, selfPos.y, predictionEnemyPos.x, predictionEnemyPos.y);
 
 		return {
-			x: halfScreenWidth + minScreenCircleRadius * Math.cos(radianAngle + bulletSpeedCoeff * calculateHornerPoly(distance, polyCoeffs)/polyDividerFactor * (radianAngle - prevRadianAngle)),
-			y: halfScreenHeight - minScreenCircleRadius * Math.sin(radianAngle + bulletSpeedCoeff * calculateHornerPoly(distance, polyCoeffs)/polyDividerFactor * (radianAngle - prevRadianAngle)),
-		}
+			x: halfScreenWidth + minScreenCircleRadius * Math.cos(predictionRadianAngle),
+			y: halfScreenHeight - minScreenCircleRadius * Math.sin(predictionRadianAngle),
+		}		
 	}
 
-	var state = {
-		playerId: 0,
-		distance: Infinity,
-		radianAngle: 0,
-		prevRadianAngle: 0,
-		new: false,
-		timestamp: Date.now(),
-		targetMousePosition: {
-			x: 0,
-			y: 0,
-		},
-		captureEnemyMode: false
+	var getNewState = function() {
+		var state = [];
+		// for(var i = 0; i < )
+		return {
+			playerId: null, // Enemy id
+			distance: null,
+			radianAngle: null,
+			prevRadianAngle: null,
+			pos: null,
+			prevPos: null,
+			new: null,
+			timestamp: null,
+			prevTimestamp: null,
+			targetMousePosition: null,
+			captureEnemyMode: false
+		}	
 	}
+	var state = getNewState();
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
 		var enemyDistances = [];
@@ -227,22 +261,32 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 
 		if(!detectedEnemiesKeys.length) {
 			state.new = false;
-			state.timestamp = Date.now();	
 			return;
 		} else {
 			if(state.captureEnemyMode) {				
 				if(detectedEnemies[state.playerId]) {
 					var enemyPos = detectedEnemies[state.playerId].netData.pos;
-
-					var distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
+					var distance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 					var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
-					state.distance = Math.sqrt(Math.pow(Math.abs(selfPos.x - enemyPos.x), 2) + Math.pow(Math.abs(selfPos.y - enemyPos.y), 2));
-					state.prevRadianAngle = state.radianAngle;
-					state.radianAngle = radianAngle;
+					if(state.new) {
+						state.prevRadianAngle = state.radianAngle;
+						state.prevPos = state.pos;
+						state.prevTimestamp = state.timestamp;
+						state.timestamp = Date.now();
+					} else {
+						state.prevRadianAngle = radianAngle;
+						state.prevPos = enemyPos;
+						state.timestamp = Date.now();
+						state.prevTimestamp = state.timestamp;
+					}
+
 					state.new = true;
-					state.timestamp = Date.now();
-					state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
+					state.distance = distance;
+					state.radianAngle = radianAngle;
+					state.pos = enemyPos;
+
+					state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
 
 					return;
 				}
@@ -264,16 +308,24 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 				state.distance = enemyDistances[minimalDistanceEnemyIndex];
 				state.prevRadianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
 				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
+				state.prevPos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
+				state.pos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
 				state.new = true;
 				state.timestamp = Date.now();
-				state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
+				state.prevTimestamp = state.timestamp;
+
+				state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
 			} else {
 				state.distance = enemyDistances[minimalDistanceEnemyIndex];
 				state.prevRadianAngle = state.radianAngle;
 				state.radianAngle = enemyRadianAngles[minimalDistanceEnemyIndex];
+				state.prevPos = state.pos;
+				state.pos = detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos;
 				state.new = true;
+				state.prevTimestamp = state.timestamp;
 				state.timestamp = Date.now();
-				state.targetMousePosition = calculateTargetMousePosition(state.radianAngle, state.prevRadianAngle, state.distance);
+
+				state.targetMousePosition = calculateTargetMousePosition(state.pos, state.timestamp, state.prevPos, state.prevTimestamp, state.distance);
 			}
 		}
 	}
@@ -348,18 +400,6 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		return !!game.scope.gameOver;
 	}
 
-	var iterate = function() {
-		if(!gameOver()) {
-			updateState(detectEnemies());	
-		} else {
-			disableCheat();
-		}
-		
-		if(state.new) {
-			game.scope.input.mousePos = state.targetMousePosition;
-		}
-	}
-
 	var spaceKeyListeners = {
 		keydown: function(event) {
 			if(event.which == 32) {
@@ -399,12 +439,6 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		window.removeEventListener("keyup", oKeyListener.keyup);
 	}
 
-	var timer = null;
-	function ticker() {
-		timer = setTimeout(ticker, 10);
-		iterate();
-	}
-
 	var defaultBOnMouseDown = function(event) {};
 	var defaultBOnMouseMove = function(event) {};
 
@@ -425,9 +459,34 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 		}
 	};
 
+	var defaultPlayerBarnRenderFunction = function(e) {};
+	var defaultLootBarnUpdateFunction = function(e, t, a) {};
+
+	var playerBarnRenderContext = {};
+	var lootBarnUpdateContext = {};
+
 	var bindCheatListeners = function() {
 		defaultBOnMouseDown = game.scope.input.bOnMouseDown;
 		defaultBOnMouseMove = game.scope.input.bOnMouseMove;
+
+		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
+		playerBarn.prototype.render = function(e) {
+			renderContext = this;
+			defaultPlayerBarnRenderFunction.call(renderContext, e);
+
+			updateState(detectEnemies());
+			if(state.new) {
+				game.scope.input.mousePos = state.targetMousePosition;
+			}
+		};
+
+		defaultLootBarnUpdateFunction = lootBarn.prototype.update
+		lootBarn.prototype.update = function(e, t, a) {
+			lootBarnUpdateContext = this;
+			defaultLootBarnUpdateFunction.call(lootBarnUpdateContext, e, t, a);
+			// console.log("Pickup loot");
+			pickupLoot();
+		}
 
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
 		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
@@ -443,6 +502,12 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 	}
 
 	var unbindCheatListeners = function() {
+		playerBarn.prototype.render = defaultPlayerBarnRenderFunction; // is this works?
+		defaultPlayerBarnRenderFunction = function(e) {};
+
+		lootBarn.prototype.update = defaultLootBarnUpdateFunction;
+		defaultLootBarnUpdateFunction = function(e, t, a) {};
+
 		window.removeEventListener("mousedown", mouseListener.mousedown);
 		window.removeEventListener("mousemove", mouseListener.mousemove);
 
@@ -459,22 +524,10 @@ var aimInit = function(game, exports, interactionEmitter, emitActionCb) {
 			bindCheatListeners();
 
 			cheatEnabled = true;
-
-			if(timer) {
-				clearTimeout(timer);
-				timer = null;
-			}
-
-			ticker();
 		}
 	}
   
 	function disableCheat() {
-		if(timer) {
-			clearTimeout(timer);
-			timer = null;
-		}
-
 		unbindCheatListeners();
 		cheatEnabled = false;
 		state.captureEnemyMode = false;
