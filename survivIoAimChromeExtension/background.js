@@ -117,6 +117,71 @@ var codeInjector = (function(){
 	var _vendorCode = null;
 	var _appCode = null;
 
+	function updateManifestCode(url, onSuccess, onError) {
+		console.log("Executing xhr manifest request...");
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.send();
+
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4) return;
+			if (this.status != 200) {
+				return onError();
+			}
+
+			var patchedManifestCode = patchManifestCode(xhr.responseText);
+			chrome.storage.local.set({
+				'manifestCode': patchedManifestCode,
+				'mainfestVer': url.match(/manifest\.(.*)\.js/)[1]
+			}, function() {
+				return onSuccess(patchedManifestCode);
+			});
+		}
+	}
+
+	function updateVendorCode(url, onSuccess, onError) {
+		console.log("Executing xhr vendor request...");
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.send();
+
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4) return;
+			if (this.status != 200) {
+				return onError();
+			}
+
+			chrome.storage.local.set({
+				'vendorCode': xhr.responseText,
+				'vendorVer': url.match(/vendor\.(.*)\.js/)[1]
+			}, function() {
+				return onSuccess(xhr.responseText);
+			});
+		}
+	}
+
+	function updateAppCode(url, onSuccess, onError) {
+		console.log("Executing xhr app request...");
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, true);
+		xhr.send();
+
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState != 4) return;
+			if (this.status != 200) {
+				return onError();
+			}
+
+			var patchedAppCode = patchAppCode(xhr.responseText);
+			chrome.storage.local.set({
+				'appCode': patchedAppCode,
+				'appVer': url.match(/app\.(.*)\.js/)[1]
+			}, function() {
+				return onSuccess(patchedAppCode);
+			});
+		}
+	}
+
 	var setManifestCode = function(manifestCode) {
 		_manifestCode = manifestCode;
 	}
@@ -154,6 +219,9 @@ var codeInjector = (function(){
 	}
 
 	return {
+		updateManifestCode: updateManifestCode,
+		updateVendorCode: updateVendorCode,
+		updateAppCode: updateAppCode,
 		setManifestCode: setManifestCode,
 		setVendorCode: setVendorCode,
 		setAppCode: setAppCode,
@@ -161,97 +229,48 @@ var codeInjector = (function(){
 	}
 })();
 
-function updateManifestCode(url, onSuccess, onError) {
-    console.log("Executing xhr manifest request...");
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", url, true);
-	xhr.send();
-
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState != 4) return;
-		if (this.status != 200) {
-			return onError();
-		}
-
-		var patchedManifestCode = patchManifestCode(xhr.responseText);
-		chrome.storage.local.set({
-			'manifestCode': patchedManifestCode,
-			'mainfestVer': url.match(/manifest\.(.*)\.js/)[1]
-		}, function() {
-			return onSuccess(patchedManifestCode);
-		});
-	}
-}
-
-function updateVendorCode(url, onSuccess, onError) {
-	console.log("Executing xhr vendor request...");
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", url, true);
-	xhr.send();
-
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState != 4) return;
-		if (this.status != 200) {
-			return onError();
-		}
-
-		chrome.storage.local.set({
-			'vendorCode': xhr.responseText,
-			'vendorVer': url.match(/vendor\.(.*)\.js/)[1]
-		}, function() {
-			return onSuccess(xhr.responseText);
-		});
-	}
-}
-
-function updateAppCode(url, onSuccess, onError) {
-	console.log("Executing xhr app request...");
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", url, true);
-	xhr.send();
-
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState != 4) return;
-		if (this.status != 200) {
-			return onError();
-		}
-
-		var patchedAppCode = patchAppCode(xhr.responseText);
-		chrome.storage.local.set({
-			'appCode': patchedAppCode,
-			'appVer': url.match(/app\.(.*)\.js/)[1]
-		}, function() {
-			return onSuccess(patchedAppCode);
-		});
-	}
-}
+var manifestCodeUpdating = false;
+var vendorCodeUpdating = false;
+var appCodeUpdating = false;
 
 chrome.webRequest.onBeforeRequest.addListener(
 	function(details) {
 		if(details.url.match(/manifest/)) {
+
+			if(!manifestCodeUpdating) {
+				manifestCodeUpdating = true;	
+			} else {
+				return;
+			}
+
 			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
 				if(manifestCode.manifestCode === undefined) {
-					updateManifestCode(details.url, function(patchedManifestCode) {
+					codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
 						console.log("Manifest code updated.");
 						codeInjector.setManifestCode(patchedManifestCode);
+						manifestCodeUpdating = false;
 						codeInjector.tryToInjectCode(details.tabId);
 					}, function(){
+						manifestCodeUpdating = false;
 						console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
 						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 					});
 				} else {
 					chrome.storage.local.get(['mainfestVer'], function(mainfestVer) {
 						if(mainfestVer.mainfestVer != details.url.match(/manifest\.(.*)\.js/)[1]) {
-							updateManifestCode(details.url, function(patchedManifestCode) {
+							codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
 								console.log("Manifest code updated.");
 								codeInjector.setManifestCode(patchedManifestCode);
+								manifestCodeUpdating = false;
 								codeInjector.tryToInjectCode(details.tabId);
 							}, function(){
+								manifestCodeUpdating = false;
 								console.log("Err getting manifest file. Page will be reloaded after 5 seconds...");
 								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 							});
 						} else {
 							codeInjector.setManifestCode(manifestCode.manifestCode);
+							manifestCodeUpdating = false;
 							codeInjector.tryToInjectCode(details.tabId);
 						}
 					});
@@ -260,29 +279,41 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 
 		if(details.url.match(/vendor/)) {
+
+			if(!vendorCodeUpdating) {
+				vendorCodeUpdating = true;	
+			} else {
+				return;
+			}
+
 			chrome.storage.local.get(['vendorCode'], function(vendorCode) {
 				if(vendorCode.vendorCode === undefined) {
-					updateVendorCode(details.url, function(vendorCode) {
+					codeInjector.updateVendorCode(details.url, function(vendorCode) {
 						console.log("Vendor code updated.");
 						codeInjector.setVendorCode(vendorCode);
+						vendorCodeUpdating = false;
 						codeInjector.tryToInjectCode(details.tabId);
 					}, function(){
+						vendorCodeUpdating = false;
 						console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
 						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 					});
 				} else {
 					chrome.storage.local.get(['vendorVer'], function(vendorVer) {
 						if(vendorVer.vendorVer != details.url.match(/vendor\.(.*)\.js/)[1]) {
-							updateVendorCode(details.url, function(vendorCode) {
+							codeInjector.updateVendorCode(details.url, function(vendorCode) {
 								console.log("Vendor code updated.");
 								codeInjector.setVendorCode(vendorCode);
+								vendorCodeUpdating = false;
 								codeInjector.tryToInjectCode(details.tabId);
 							}, function(){
+								vendorCodeUpdating = false;
 								console.log("Err update vendor file. Page will be reloaded after 5 seconds...");
 								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 							});
 						} else {
 							codeInjector.setVendorCode(vendorCode.vendorCode);
+							vendorCodeUpdating = false;
 							codeInjector.tryToInjectCode(details.tabId);
 						}
 					});
@@ -291,29 +322,41 @@ chrome.webRequest.onBeforeRequest.addListener(
 		}
 
 		if(details.url.match(/app/)) {
+
+			if(!appCodeUpdating) {
+				appCodeUpdating = true;	
+			} else {
+				return;
+			}
+
 			chrome.storage.local.get(['appCode'], function(appCode) {
 				if(appCode.appCode === undefined) {
-					updateAppCode(details.url, function(patchedAppCode) {
+					codeInjector.updateAppCode(details.url, function(patchedAppCode) {
 						console.log("App code updated.");
 						codeInjector.setAppCode(patchedAppCode);
+						appCodeUpdating = false;
 						codeInjector.tryToInjectCode(details.tabId);
 					}, function(){
+						appCodeUpdating = false;
 						console.log("Err update app file. Page will be reloaded after 5 seconds...");
 						setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 					});
 				} else {
 					chrome.storage.local.get(['appVer'], function(appVer) {
 						if(appVer.appVer != details.url.match(/app\.(.*)\.js/)[1]) {
-							updateAppCode(details.url, function(patchedAppCode) {
+							codeInjector.updateAppCode(details.url, function(patchedAppCode) {
 								console.log("App code updated.");
 								codeInjector.setAppCode(patchedAppCode);
+								appCodeUpdating = false;
 								codeInjector.tryToInjectCode(details.tabId);
 							}, function(){
+								appCodeUpdating = false;
 								console.log("Err update app file. Page will be reloaded after 5 seconds...");
 								setTimeout(function(){chrome.tabs.reload(details.tabId, null, null)}, 5000);
 							});
 						} else {
 							codeInjector.setAppCode(appCode.appCode);
+							appCodeUpdating = false;
 							codeInjector.tryToInjectCode(details.tabId);
 						}
 					});
