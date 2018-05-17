@@ -8,7 +8,8 @@ When you start the game, just press `Z` key to enable cheat. Your person must au
 
 Update: You can shoot on space key.  
 Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.
-Update: Auto loot and auto opening door added  
+Update: Auto loot and auto opening door added.
+Update: Zoom radius regulation by `Left shift` + `Mouse wheel`  
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 
@@ -23,6 +24,7 @@ All actions you take at your own risk. The author is not responsible for the con
 
 Обновление: Кроме кнопки мыши, стрелять можно нажав на пробел.  
 Обновление: Чтобы включить/отключить режим захвата, нажмите клавишу O. В этом режиме, если рядом с вами находится более одного противника, происходит "захват" ближайшего к вам противника и сопровождение его, пока он не покинет область видимости или не будет ранен (даже если рядом с вами будет находиться другой противник).
-Обновление: Автоматическое открытие дверей и сборка лута  
+Обновление: Автоматическое открытие дверей и сборка лута.
+Обновление: Для регулирования радиуса зума используйте клавиши `Left shift` + `Mouse wheel`  
 
 Все действия описанные в этой инструкции вы выполняете на свой страх и риск. Автор не несет ответственности за последствия ваших действий.

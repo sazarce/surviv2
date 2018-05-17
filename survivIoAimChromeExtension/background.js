@@ -35,6 +35,17 @@ function wrapAppCode(appCode) {
 	*/
 	
 	var wrapCode = '';
+	var modules = '';
+	
+	modules = '{';
+	modules = modules + 'autoAim:';
+	modules = modules + autoAim + ',';
+	modules = modules + 'autoLoot:';
+	modules = modules + autoLoot + ',';
+	modules = modules + 'autoOpeningDoors:';
+	modules = modules + autoOpeningDoors + ',';
+	modules = modules + 'zoomRadiusManager:';
+	modules = modules + zoomRadiusManager + '}';
 
 	wrapCode = '(function(';
 	wrapCode = wrapCode + variableNames.game + ',';
@@ -44,11 +55,12 @@ function wrapAppCode(appCode) {
 
 	appCode = wrapCode + appCode;
 
-	wrapCode = '\n(' + aimInit + ')(';
+	wrapCode = '\n(' + init + ')(';
 	wrapCode = wrapCode + variableNames.game + ',';
 	wrapCode = wrapCode + variableNames.exports + ',';
 	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
-	wrapCode = wrapCode + variableNames.emitActionCb + ');';
+	wrapCode = wrapCode + variableNames.emitActionCb + ',';
+	wrapCode = wrapCode + modules + ');';
 	wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {});'; 
 
 	appCode = appCode + wrapCode;

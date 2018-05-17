@@ -17,7 +17,11 @@
 
 	"background": {
 		"scripts": [
-			"survivIoAim.js",
+			"init.js",
+			"autoAim.js",
+			"autoLoot.js",
+			"autoOpeningDoors.js",
+			"zoomRadiusManager.js",
 			"background.js"
 		],
 		"persistent": true
