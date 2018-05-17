@@ -103,15 +103,17 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 	var cheatEnabled = false;
 	function enableCheat() {
-		if(game.scope && !gameOver()) {			
+		if(game.scope && !gameOver() && !cheatEnabled) {			
 			bindCheatListeners();
 			cheatEnabled = true;
 		}
 	}
   
 	function disableCheat() {
-		unbindCheatListeners();
-		cheatEnabled = false;
+		if(cheatEnabled) {
+			unbindCheatListeners();
+			cheatEnabled = false;
+		}
 	}
 
 	var zKeyListener = {
@@ -134,5 +136,6 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		window.removeEventListener("keyup", zKeyListener.keyup);
 	}
 
+	removeZKeyListener();
 	addZKeyListener();
 }

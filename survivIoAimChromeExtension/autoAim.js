@@ -301,6 +301,10 @@ var autoAim = function(game, variables) {
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
 		window.removeEventListener("mousemove", game.scope.input.bOnMouseMove);
 
+		removeMouseListener();
+		removeSpaceKeyListener();
+		removeOKeyListener();
+
 		addMouseListener();
 		addSpaceKeyListener();
 		addOKeyListener();
