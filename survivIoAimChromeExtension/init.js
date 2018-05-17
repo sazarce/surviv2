@@ -18,7 +18,22 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var playerBarn = findVariable("PlayerBarn", exports);
 	var lootBarn = findVariable("LootBarn", exports);
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
-	
+	var inputHandler = findVariable("InputHandler", exports);
+
+	if(inputHandler) {
+		var defaultInputHandlerFreeFunction = function() {};
+		var inputHandlerFreeContext = {};
+
+		defaultInputHandlerFreeFunction = inputHandler.prototype.free;
+		inputHandler.prototype.free = function() {
+			disableCheat();
+			inputHandlerFreeContext = this;
+			defaultInputHandlerFreeFunction.call(inputHandlerFreeContext);			
+		}
+	} else {
+		console.log("Cannot init");
+		return;
+	}
 
 	if(!!defsParticles || !!items) {
 		// Gernage size and color
@@ -47,9 +62,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		console.log("Alpha not patched");
 	}
 
-	// setInterval(function(){if(game.scope && game.scope.activePlayer){
-	// 	console.log(game.scope);console.log(exports);
-	// }}, 2000);
+	setInterval(function(){if(game.scope && game.scope.activePlayer){
+		console.log(game.scope);console.log(exports);
+	}}, 2000);
 
 	var gameOver = function() {
 		return !!game.scope.gameOver;
