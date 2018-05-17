@@ -62,9 +62,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		console.log("Alpha not patched");
 	}
 
-	setInterval(function(){if(game.scope && game.scope.activePlayer){
-		console.log(game.scope);console.log(exports);
-	}}, 2000);
+	// setInterval(function(){if(game.scope && game.scope.activePlayer){
+	// 	console.log(game.scope);console.log(exports);
+	// }}, 2000);
 
 	var gameOver = function() {
 		return !!game.scope.gameOver;
