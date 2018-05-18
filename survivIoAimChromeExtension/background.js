@@ -53,7 +53,7 @@ function wrapAppCode(appCode) {
 	wrapCode = wrapCode + variableNames.game + ',';
 	wrapCode = wrapCode + variableNames.exports + ',';
 	wrapCode = wrapCode + variableNames.interactionEmitter + ',';
-	wrapCode = wrapCode + variableNames.emitActionCb + '){debugger;';
+	wrapCode = wrapCode + variableNames.emitActionCb + '){';
 
 	appCode = wrapCode + appCode;
 
