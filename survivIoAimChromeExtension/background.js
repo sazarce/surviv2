@@ -44,6 +44,8 @@ function wrapAppCode(appCode) {
 	modules = modules + autoLoot + ',';
 	modules = modules + 'autoOpeningDoors:';
 	modules = modules + autoOpeningDoors + ',';
+	modules = modules + 'menu:';
+	modules = modules + menu + ',';
 	modules = modules + 'zoomRadiusManager:';
 	modules = modules + zoomRadiusManager + '}';
 
@@ -383,6 +385,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			"*://*.2dbattleroyale.org/js/manifest.*.js",
 			"*://*.2dbattleroyale.org/js/vendor.*.js",
 			"*://*.2dbattleroyale.org/js/app.*.js",
+			"*://*.googlesyndication.com/pagead/osd.js"
 		],
 		types: ["script"]
 	},

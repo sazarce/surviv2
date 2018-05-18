@@ -1,4 +1,7 @@
 var autoOpeningDoors = function(game, emitActionCb, interactionEmitter) {
+
+	var binded = false;
+
 	emitActionCb.scope = function() {};
 
 	var pressF = function() {
@@ -29,14 +32,21 @@ var autoOpeningDoors = function(game, emitActionCb, interactionEmitter) {
 				}
 			}
 		};
+		binded = true;
 	};
 
 	var unbind = function() {
 		emitActionCb.scope = function() {};
+		binded = false;
 	};
+
+	var isBinded = function() {
+		return binded;
+	}
 
 	return {
 		bind: bind,
-		unbind: unbind
+		unbind: unbind,
+		isBinded: isBinded
 	}
 }

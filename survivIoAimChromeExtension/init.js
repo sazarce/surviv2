@@ -11,6 +11,28 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		return null;
 	};
 
+	function findPrototype(name, exports) {
+		var keys = Object.keys(exports);
+		for(var i = 0; i < keys.length; i++) {
+			if(exports[keys[i]].exports.prototype) {
+				if(exports[keys[i]].exports.prototype[name]) {
+					return exports[keys[i]].exports;
+				}
+			}
+		}	
+	}
+
+	var options = {
+		particlesTransparency: 0.5,
+		ceilingTrancparency: 0.5,
+		fragGernageSize: 0.31,
+		fragGernageColor: 16711680,
+		autoAimEnabled: true,
+		autoLootEnabled: true,
+		autoOpeningDoorsEnabled: true,
+		zoomRadiusManagerEnabled: true
+	}
+
 	var defsParticles = findVariable("Defs", exports);
 	var bullets = findVariable("bullets", exports);
 	var items = findVariable("items", exports);
@@ -35,39 +57,109 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		return;
 	}
 
+	var particlesTransparencyCb = null;
+	var ceilingTrancparencyCb = null;
+	var gernagePropertiesCb = null;
+
 	if(!!defsParticles || !!items) {
 		// Gernage size and color
-		items.frag.worldImg.tint = 16711680;
-		items.frag.worldImg.scale = 0.31;
+		items.frag.worldImg.tint = options.fragGernageColor;
+		items.frag.worldImg.scale = options.fragGernageSize;
 
 		// Ceiling alpha
 		Object.keys(defsParticles).forEach(function(key) {
 			if(defsParticles[key].ceiling) {
 				defsParticles[key].ceiling.imgs.forEach(function(item) {
-					item.alpha = 0.5;
+					item.alpha = options.ceilingTrancparency;
 				});
 			}
 		});
 
-		defsParticles["bush_01"].img.alpha = 0.5;
-		defsParticles["bush_02"].img.alpha = 0.5;
-		defsParticles["bush_03"].img.alpha = 0.5;
+		defsParticles["bush_03"].img.alpha = defsParticles["bush_02"].img.alpha = defsParticles["bush_01"].img.alpha = options.particlesTransparency;
 
-		defsParticles["tree_01"].img.alpha = 0.5;
-		defsParticles["tree_02"].img.alpha = 0.5;
+		defsParticles["tree_01"].img.alpha = defsParticles["tree_02"].img.alpha = options.particlesTransparency;
 		
-		defsParticles["table_01"].img.alpha = 0.5;
-		defsParticles["table_02"].img.alpha = 0.5;
-	} else {
-		console.log("Alpha not patched");
+		defsParticles["table_02"].img.alpha = defsParticles["table_01"].img.alpha = options.particlesTransparency;
+
+		particlesTransparencyCb = function(alpha) {
+			// Particle alpha
+			options.particlesTransparency = alpha;
+
+			defsParticles["bush_01"].img.alpha = alpha;
+			defsParticles["bush_02"].img.alpha = alpha;
+			defsParticles["bush_03"].img.alpha = alpha;
+
+			defsParticles["tree_01"].img.alpha = alpha;
+			defsParticles["tree_02"].img.alpha = alpha;
+			
+			defsParticles["table_01"].img.alpha = alpha;
+			defsParticles["table_02"].img.alpha = alpha;
+		}
+
+		ceilingTrancparencyCb = function(alpha) {
+			// Ceiling alpha
+			options.ceilingTrancparency = alpha;
+
+			Object.keys(defsParticles).forEach(function(key) {
+				if(defsParticles[key].ceiling) {
+					defsParticles[key].ceiling.imgs.forEach(function(item) {
+						item.alpha = alpha;
+					});
+				}
+			});
+		}
+
+		gernagePropertiesCb = function(size, color) {
+			options.fragGernageSize = size;
+			options.fragGernageColor = color;
+
+			items.frag.worldImg.tint = color;
+			items.frag.worldImg.scale = size;
+		}
 	}
 
 	// setInterval(function(){if(game.scope && game.scope.activePlayer){
 	// 	console.log(game.scope);console.log(exports);
 	// }}, 2000);
 
-	var gameOver = function() {
-		return !!game.scope.gameOver;
+	var autoAimEnableCb = function() {
+		if(autoAim.isBinded() && options.autoAimEnabled) {
+			autoAim.unbind();
+			options.autoAimEnabled = false;
+		} else if(!autoAim.isBinded() && !options.autoAimEnabled) {
+			autoAim.bind();
+			options.autoAimEnabled = true;
+		}
+	}
+
+	var autoLootEnableCb = function() {
+		if(autoLoot.isBinded() && options.autoLootEnabled) {
+			autoLoot.unbind();
+			options.autoLootEnabled = false;
+		} else if(!autoLoot.isBinded() && !options.autoLootEnabled) {
+			autoLoot.bind();
+			options.autoLootEnabled = true;
+		}
+	}
+
+	var autoOpeningDoorsEnableCb = function() {
+		if(autoOpeningDoors.isBinded() && options.autoOpeningDoorsEnabled) {
+			autoOpeningDoors.unbind();
+			options.autoOpeningDoorsEnabled = false;
+		} else if(!autoOpeningDoors.isBinded() && !options.autoOpeningDoorsEnabled) {
+			autoOpeningDoors.bind();
+			options.autoOpeningDoorsEnabled = true;
+		}
+	}
+
+	var zoomRadiusManagerEnableCb = function() {
+		if(zoomRadiusManager.isBinded() && options.zoomRadiusManagerEnabled) {
+			zoomRadiusManager.unbind();
+			options.zoomRadiusManagerEnabled = false;
+		} else if(!zoomRadiusManager.isBinded() && !options.zoomRadiusManagerEnabled) {
+			zoomRadiusManager.bind();
+			options.zoomRadiusManagerEnabled = true;
+		}
 	}
 
 	var autoAim = modules.autoAim(game, {
@@ -87,18 +179,63 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		scopeZoomRadius: scopeZoomRadius
 	});
 
+	var menu = modules.menu(options, {
+		particlesTransparencyCb: particlesTransparencyCb,
+		ceilingTrancparencyCb: ceilingTrancparencyCb,
+		gernagePropertiesCb: gernagePropertiesCb,
+		autoAimEnableCb: autoAimEnableCb,
+		autoLootEnableCb: autoLootEnableCb,
+		autoOpeningDoorsEnableCb: autoOpeningDoorsEnableCb,
+		zoomRadiusManagerEnableCb: zoomRadiusManagerEnableCb
+	});
+
 	var bindCheatListeners = function() {
-		autoAim.bind();
-		autoLoot.bind();
-		autoOpeningDoors.bind();
-		zoomRadiusManager.bind();
+		if(options.autoAimEnabled && !autoAim.isBinded()) {
+			autoAim.bind();
+		}
+
+		if(options.autoLootEnabled && !autoLoot.isBinded()) {
+			autoLoot.bind();
+		}
+
+		if(options.autoOpeningDoorsEnabled && !autoOpeningDoors.isBinded()) {
+			autoOpeningDoors.bind();
+		}
+
+		if(options.zoomRadiusManagerEnabled && !zoomRadiusManager.isBinded()) {
+			zoomRadiusManager.bind();
+		}
+
+		if(!menu.isBinded()) {
+			menu.bind();
+		}
 	}
 
 	var unbindCheatListeners = function() {
-		autoAim.unbind();
-		autoLoot.unbind();
-		autoOpeningDoors.unbind();
-		zoomRadiusManager.unbind();
+		if(menu.isBinded()) {
+			menu.unbind();
+		}
+		
+		if(autoAim.isBinded()) {
+			autoAim.unbind();
+		}
+
+		if(autoLoot.isBinded()) {
+			autoLoot.unbind();
+		}
+
+		if(autoOpeningDoors.isBinded()) {
+			autoOpeningDoors.unbind();
+		}
+
+		if(zoomRadiusManager.isBinded()) {
+			zoomRadiusManager.unbind();
+		}
+	}
+
+	var gameOver = function() {
+		if(game.scope) return !!game.scope.gameOver;
+		return true;
 	}
 
 	var cheatEnabled = false;
@@ -119,10 +256,12 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var zKeyListener = {
 		keyup: function(event) {
 			if(event.which == 90) {
-				if(cheatEnabled) {
-					disableCheat();
-				} else {
-					enableCheat();
+				if(!gameOver()) {
+					if(cheatEnabled) {
+						disableCheat();
+					} else {
+						enableCheat();
+					}
 				}
 			}
 		}
