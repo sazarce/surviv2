@@ -3,6 +3,7 @@ var autoAim = function(game, variables) {
 	var bullets = variables.bullets;
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
+	var binded = false;
 
 	if(!!!bullets || !!!items || !!! playerBarn) {
 		console.log("Cannot init autoaim");
@@ -291,7 +292,6 @@ var autoAim = function(game, variables) {
 		playerBarn.prototype.render = function(e) {
 			playerBarnRenderContext = this;
 			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
-
 			updateState(detectEnemies());
 			if(state.new) {
 				game.scope.input.mousePos = state.averageTargetMousePosition;
@@ -308,22 +308,34 @@ var autoAim = function(game, variables) {
 		addMouseListener();
 		addSpaceKeyListener();
 		addOKeyListener();
+
+		binded = true;
 	}
 
 	var unbind = function() {
+		console.log("Unbind autoaim");
 		removeMouseListener();
 		removeSpaceKeyListener();
 		removeOKeyListener();
+
+		window.removeEventListener("mousedown", defaultBOnMouseDown);
+		window.removeEventListener("mousemove", defaultBOnMouseMove);		
 
 		window.addEventListener("mousedown", defaultBOnMouseDown);
 		window.addEventListener("mousemove", defaultBOnMouseMove);
 
 		playerBarn.prototype.render = defaultPlayerBarnRenderFunction;
-		defaultPlayerBarnRenderFunction = function(e) {};
+
+		binded = false;
+	}
+
+	var isBinded = function() {
+		return binded;
 	}
 
 	return {
 		bind: bind,
-		unbind: unbind
+		unbind: unbind,
+		isBinded: isBinded
 	}
 }

@@ -1,6 +1,7 @@
 var zoomRadiusManager = function(game, variables) {
 
 	var scopeZoomRadius = variables.scopeZoomRadius;
+	var binded = false;
 
 	if(!!!scopeZoomRadius) {
 		console.log("Cannot init zoom radius manager");
@@ -51,16 +52,26 @@ var zoomRadiusManager = function(game, variables) {
 
 		removeMouseListener();
 		addMouseListener();
+
+		binded = true;
 	}
 
 	var unbind = function() {
 		removeMouseListener();
+
+		window.removeEventListener('wheel', defaultBOnMouseWheel);
 		window.addEventListener('wheel', defaultBOnMouseWheel);
-		defaultBOnMouseWheel = function(e) {};
+
+		binded = false;
+	}
+
+	var isBinded = function() {
+		return binded;
 	}
 
 	return {
 		bind: bind,
-		unbind: unbind
+		unbind: unbind,
+		isBinded: isBinded
 	}
 }
