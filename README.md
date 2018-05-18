@@ -10,7 +10,7 @@ Update: You can shoot on space key.
 Update: Press O key for enable/disable "capture mode". In this mode if you have more than one enemy near you, its switch to closest enemy one time (capture) and will accompany him while the enemy not escaped or injured.  
 Update: Auto loot and auto opening door added.  
 Update: Zoom radius regulation by `Left shift` + `Mouse wheel`  
-Update: Game menu added. Press `Z` key to enable the cheat (after you start a round) and `Esc` to show menu.  
+Update: Game menu added. Press `Z` key to enable the cheat and `Esc` to show menu.  
 
 All actions you take at your own risk. The author is not responsible for the consequences of your actions.
 

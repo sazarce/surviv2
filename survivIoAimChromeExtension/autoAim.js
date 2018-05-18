@@ -110,14 +110,6 @@ var autoAim = function(game, variables) {
 		var state = [];
 		for(var i = 0; i < 4; i++) {
 			state.push({
-				player: {
-					nameText: {
-						visible: false,
-						style: {
-							fontSize: 22
-						}
-					}
-				},
 				playerId: null, // Enemy id
 				distance: null,
 				radianAngle: null,
@@ -134,7 +126,6 @@ var autoAim = function(game, variables) {
 		}
 		state.new = null;
 		state.averageTargetMousePosition = null;
-
 		return state;
 	}
 
@@ -157,8 +148,7 @@ var autoAim = function(game, variables) {
 					var radianAngle = calculateRadianAngle(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
 
 					state.unshift({
-						player: detectedEnemies[state[0].playerId],
-						playerId: detectedEnemies[state[0].playerId].__id,
+						playerId: detectedEnemies[state[0].playerId],
 						distance: distance,
 						radianAngle: radianAngle,
 						pos: enemyPos,
@@ -195,7 +185,6 @@ var autoAim = function(game, variables) {
 			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
 
 			state.unshift({
-				player: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]],
 				playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
 				distance: enemyDistances[minimalDistanceEnemyIndex],
 				radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
@@ -217,8 +206,6 @@ var autoAim = function(game, variables) {
 			state.averageTargetMousePosition.x /= state.length;
 			state.averageTargetMousePosition.y /= state.length;
 			
-			state.detectedEnemy = detectedEnemies[state[0].playerId];
-
 			return;
 			// todo: check equals playerId in all items of array
 		}
@@ -304,19 +291,11 @@ var autoAim = function(game, variables) {
 		defaultPlayerBarnRenderFunction = playerBarn.prototype.render;
 		playerBarn.prototype.render = function(e) {
 			playerBarnRenderContext = this;
+			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
 			updateState(detectEnemies());
-
 			if(state.new) {
 				game.scope.input.mousePos = state.averageTargetMousePosition;
-				state[0].player.nameText.visible = true;
-				state[0].player.nameText.style.fontSize = 50;
-
-				if(state[0].player.__id != state[1].player.__id) {
-					state[1].player.nameText.visible = false;
-				}
 			}
-
-			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
 		};
 
 		window.removeEventListener("mousedown", game.scope.input.bOnMouseDown);
