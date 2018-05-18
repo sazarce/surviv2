@@ -18,7 +18,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		fragGernageColor: 16711680,
 		autoAimEnabled: true,
 		autoLootEnabled: true,
-		autoOpeningDoorEnabled: true,
+		autoOpeningDoorsEnabled: true,
 		zoomRadiusManagerEnabled: true
 	}
 
@@ -121,31 +121,31 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		}
 	}
 
-	var autoLootEnableCb = function(enable) {
-		if(autoLoot.isBinded() && !enable) {
+	var autoLootEnableCb = function() {
+		if(autoLoot.isBinded() && options.autoLootEnabled) {
 			autoLoot.unbind();
 			options.autoLootEnabled = false;
-		} else if(!autoLoot.isBinded() && enable) {
+		} else if(!autoLoot.isBinded() && !options.autoLootEnabled) {
 			autoLoot.bind();
 			options.autoLootEnabled = true;
 		}
 	}
 
-	var autoOpeningDoorsEnableCb = function(enable) {
-		if(autoOpeningDoors.isBinded() && !enable) {
+	var autoOpeningDoorsEnableCb = function() {
+		if(autoOpeningDoors.isBinded() && options.autoOpeningDoorsEnabled) {
 			autoOpeningDoors.unbind();
-			options.autoOpeningDoorEnabled = false;
-		} else if(!autoOpeningDoors.isBinded() && enable) {
+			options.autoOpeningDoorsEnabled = false;
+		} else if(!autoOpeningDoors.isBinded() && !options.autoOpeningDoorsEnabled) {
 			autoOpeningDoors.bind();
-			options.autoOpeningDoorEnabled = true;
+			options.autoOpeningDoorsEnabled = true;
 		}
 	}
 
-	var zoomRadiusManagerEnableCb = function(enable) {
-		if(zoomRadiusManager.isBinded() && !enable) {
+	var zoomRadiusManagerEnableCb = function() {
+		if(zoomRadiusManager.isBinded() && options.zoomRadiusManagerEnabled) {
 			zoomRadiusManager.unbind();
 			options.zoomRadiusManagerEnabled = false;
-		} else if(!zoomRadiusManager.isBinded() && enable) {
+		} else if(!zoomRadiusManager.isBinded() && !options.zoomRadiusManagerEnabled) {
 			zoomRadiusManager.bind();
 			options.zoomRadiusManagerEnabled = true;
 		}
@@ -179,26 +179,21 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	});
 
 	var bindCheatListeners = function() {
-		if(!autoAim.isBinded()) {
+		if(options.autoAimEnabled && !autoAim.isBinded()) {
 			autoAim.bind();
 		}
 
-		if(!autoLoot.isBinded()) {
+		if(options.autoLootEnabled && !autoLoot.isBinded()) {
 			autoLoot.bind();
 		}
 
-		if(!autoOpeningDoors.isBinded()) {
+		if(options.autoOpeningDoorsEnabled && !autoOpeningDoors.isBinded()) {
 			autoOpeningDoors.bind();
 		}
 
-		if(!zoomRadiusManager.isBinded()) {
+		if(options.zoomRadiusManagerEnabled && !zoomRadiusManager.isBinded()) {
 			zoomRadiusManager.bind();
 		}
-
-		options.autoAimEnabled = true;
-		options.autoLootEnabled = true;
-		options.autoOpeningDoorEnabled = true;
-		options.zoomRadiusManagerEnabled = true;
 
 		if(!menu.isBinded()) {
 			menu.bind();
@@ -225,11 +220,6 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		if(zoomRadiusManager.isBinded()) {
 			zoomRadiusManager.unbind();
 		}
-
-		options.autoAimEnabled = false;
-		options.autoLootEnabled = false;
-		options.autoOpeningDoorEnabled = false;
-		options.zoomRadiusManagerEnabled = false;
 	}
 
 	var gameOver = function() {
@@ -255,10 +245,12 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var zKeyListener = {
 		keyup: function(event) {
 			if(event.which == 90) {
-				if(!gameOver() && cheatEnabled) {
-					disableCheat();
-				} else if(!gameOver() && !cheatEnabled){
-					enableCheat();
+				if(!gameOver()) {
+					if(cheatEnabled) {
+						disableCheat();
+					} else {
+						enableCheat();
+					}
 				}
 			}
 		}

@@ -313,7 +313,6 @@ var autoAim = function(game, variables) {
 	}
 
 	var unbind = function() {
-		console.log("Unbind autoaim");
 		removeMouseListener();
 		removeSpaceKeyListener();
 		removeOKeyListener();

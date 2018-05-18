@@ -5,7 +5,7 @@ var menu = function(options, callbacks) {
 	var showMenu = function() {
 		var cheatMenuContainer = document.createElement('div');
 		cheatMenuContainer.className = "modal-body";
-		cheatMenuContainer.style = "display:" + document.getElementById('ui-game-menu').style.display + ";z-index:10;pointer-events:all;position:absolute;max-height:500px;width:25%;"
+		cheatMenuContainer.style = "display:block;z-index:10;pointer-events:all;position:absolute;max-height:500px;width:25%;"
 
 		var particlesTransparencySlider = document.createElement('div');
 		var ceilingTrancparencySlider = document.createElement('div');
@@ -15,7 +15,7 @@ var menu = function(options, callbacks) {
 
 		var autoAimEnabledCheckbox = document.createElement('div');
 		var autoLootEnabledCheckbox = document.createElement('div');
-		var autoOpeningDoorEnabledCheckbox = document.createElement('div');
+		var autoOpeningDoorsEnabledCheckbox = document.createElement('div');
 		var zoomRadiusManagerEnabledCheckbox = document.createElement('div');
 
 		if(callbacks.particlesTransparencyCb) {
@@ -90,8 +90,8 @@ var menu = function(options, callbacks) {
 			inputSize.className = "slider";
 			inputSize.type = "range";
 			inputSize.min = "0.1";
-			inputSize.max = "1";
-			inputSize.step = "0.1";
+			inputSize.max = "0.5";
+			inputSize.step = "0.01";
 			inputSize.value = options.fragGernageSize;
 
 			inputColor.addEventListener("input", function() {
@@ -137,9 +137,8 @@ var menu = function(options, callbacks) {
 			input.checked = options.autoLootEnabled;
 
 			input.addEventListener("change", function() {
-				options.autoLootEnabled = !options.autoLootEnabled;
+				callbacks.autoLootEnableCb();
 				this.checked = options.autoLootEnabled;
-				callbacks.autoLootEnableCb(options.autoLootEnabled);
 			}, false);
 
 			autoLootEnabledCheckbox.appendChild(description);
@@ -153,16 +152,15 @@ var menu = function(options, callbacks) {
 
 			var input = document.createElement('input');
 			input.type = "checkbox";
-			input.checked = options.autoOpeningDoorEnabled;
+			input.checked = options.autoOpeningDoorsEnabled;
 
 			input.addEventListener("change", function() {
-				options.autoOpeningDoorEnabled = !options.autoOpeningDoorEnabled;
-				this.checked = options.autoOpeningDoorEnabled;
-				callbacks.autoOpeningDoorsEnableCb(options.autoOpeningDoorEnabled);
+				callbacks.autoOpeningDoorsEnableCb();
+				this.checked = options.autoOpeningDoorsEnabled;
 			}, false);
 
-			autoOpeningDoorEnabledCheckbox.appendChild(description);
-			autoOpeningDoorEnabledCheckbox.appendChild(input);
+			autoOpeningDoorsEnabledCheckbox.appendChild(description);
+			autoOpeningDoorsEnabledCheckbox.appendChild(input);
 		}
 
 		if(callbacks.zoomRadiusManagerEnableCb) {
@@ -175,9 +173,8 @@ var menu = function(options, callbacks) {
 			input.checked = options.zoomRadiusManagerEnabled;
 
 			input.addEventListener("change", function() {
-				options.zoomRadiusManagerEnabled = !options.zoomRadiusManagerEnabled;
+				callbacks.zoomRadiusManagerEnableCb();
 				this.checked = options.zoomRadiusManagerEnabled;
-				callbacks.zoomRadiusManagerEnableCb(options.zoomRadiusManagerEnabled);
 			}, false);
 
 			zoomRadiusManagerEnabledCheckbox.appendChild(description);
@@ -192,7 +189,7 @@ var menu = function(options, callbacks) {
 
 		cheatMenuContainer.appendChild(autoAimEnabledCheckbox);
 		cheatMenuContainer.appendChild(autoLootEnabledCheckbox);
-		cheatMenuContainer.appendChild(autoOpeningDoorEnabledCheckbox);
+		cheatMenuContainer.appendChild(autoOpeningDoorsEnabledCheckbox);
 		cheatMenuContainer.appendChild(zoomRadiusManagerEnabledCheckbox);
 
 		document.getElementById('ui-game').appendChild(cheatMenuContainer);
@@ -201,7 +198,6 @@ var menu = function(options, callbacks) {
 	var hideMenu = function() {
 		document.getElementById('ui-game').removeChild(document.getElementById('ui-game').lastChild);
 		cheatMenuContainer = document.createElement('div');
-		console.log("Remove");
 	}
 
 	var escListener = {
@@ -228,6 +224,7 @@ var menu = function(options, callbacks) {
 	var bind = function() {
 		removeEscListener();
 		addEscListener();
+		binded = true;
 	}
 
 	var unbind = function() {
@@ -237,6 +234,7 @@ var menu = function(options, callbacks) {
 		}
 
 		removeEscListener();
+		binded = false;
 	}
 
 	var isBinded = function() {
