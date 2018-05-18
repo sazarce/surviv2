@@ -11,6 +11,17 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		return null;
 	};
 
+	function findPrototype(name, exports) {
+		var keys = Object.keys(exports);
+		for(var i = 0; i < keys.length; i++) {
+			if(exports[keys[i]].exports.prototype) {
+				if(exports[keys[i]].exports.prototype[name]) {
+					return exports[keys[i]].exports;
+				}
+			}
+		}	
+	}
+
 	var options = {
 		particlesTransparency: 0.5,
 		ceilingTrancparency: 0.5,

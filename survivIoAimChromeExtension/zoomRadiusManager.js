@@ -1,6 +1,8 @@
 var zoomRadiusManager = function(game, variables) {
 
 	var scopeZoomRadius = variables.scopeZoomRadius;
+	var defaultZoomRadius = Object.assign({}, scopeZoomRadius);
+
 	var binded = false;
 
 	if(!!!scopeZoomRadius) {
@@ -19,13 +21,25 @@ var zoomRadiusManager = function(game, variables) {
 			console.log("Scope zoom and radius not patched");
 		}
 	};
+
+	var resetZoomRadius = function() {
+		if(scopeZoomRadius) {
+			scopeZoomRadius["1xscope"] = defaultZoomRadius["1xscope"];
+			scopeZoomRadius["2xscope"] = defaultZoomRadius["2xscope"];
+			scopeZoomRadius["4xscope"] = defaultZoomRadius["4xscope"];
+			scopeZoomRadius["8xscope"] = defaultZoomRadius["8xscope"];
+			scopeZoomRadius["15xscope"] = defaultZoomRadius["15xscope"];
+		} else {
+			console.log("Scope zoom and radius not patched");
+		}
+	}
+
 	var zoomRadius = 68;
-	setZoomRadius(zoomRadius);
 
 	var defaultBOnMouseWheel = function(e) {};
 
 	var mouseListener = {
-		wheel: function(e) {			
+		wheel: function(e) {
 			if(e.shiftKey) {
 				var delta = e.deltaY || e.detail || e.wheelDelta;
 				zoomRadius += Math.sign(delta) * 10;
@@ -53,6 +67,7 @@ var zoomRadiusManager = function(game, variables) {
 		removeMouseListener();
 		addMouseListener();
 
+		setZoomRadius(zoomRadius);
 		binded = true;
 	}
 
@@ -62,6 +77,7 @@ var zoomRadiusManager = function(game, variables) {
 		window.removeEventListener('wheel', defaultBOnMouseWheel);
 		window.addEventListener('wheel', defaultBOnMouseWheel);
 
+		resetZoomRadius();
 		binded = false;
 	}
 
