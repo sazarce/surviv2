@@ -244,7 +244,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			chrome.storage.local.get(['manifestCode'], function(manifestCode) {
-				if(manifestCode.manifestCode === undefined) {
+				if(true || manifestCode.manifestCode === undefined) {
 					codeInjector.updateManifestCode(details.url, function(patchedManifestCode) {
 						console.log("Manifest code updated.");
 						codeInjector.setManifestCode(patchedManifestCode);
@@ -287,7 +287,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			chrome.storage.local.get(['vendorCode'], function(vendorCode) {
-				if(vendorCode.vendorCode === undefined) {
+				if(true || vendorCode.vendorCode === undefined) {
 					codeInjector.updateVendorCode(details.url, function(vendorCode) {
 						console.log("Vendor code updated.");
 						codeInjector.setVendorCode(vendorCode);
@@ -330,7 +330,7 @@ chrome.webRequest.onBeforeRequest.addListener(
 			}
 
 			chrome.storage.local.get(['appCode'], function(appCode) {
-				if(appCode.appCode === undefined) {
+				if(true || appCode.appCode === undefined) {
 					codeInjector.updateAppCode(details.url, function(patchedAppCode) {
 						console.log("App code updated.");
 						codeInjector.setAppCode(patchedAppCode);

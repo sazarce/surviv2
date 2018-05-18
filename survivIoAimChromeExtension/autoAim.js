@@ -218,6 +218,8 @@ var autoAim = function(game, variables) {
 
 	var mouseListener = {
 		mousedown: function(event) {
+			//alert("Mouse");
+			console.log("Mouse");
 			if(!event.button && state.new) {
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 				// ???
@@ -246,14 +248,36 @@ var autoAim = function(game, variables) {
 
 	var spaceKeyListeners = {
 		keydown: function(event) {
+			//debugger;
 			if(event.which == 32) {
+				//alert("Space key");
+				console.log("Space key");
+				
 				game.scope.input.mouseButton = true;
+				game.scope.isSpacePressed = true;
+				spam(false);
 			}
 		},
 		keyup: function(event) {
+			//debugger;
 			if(event.which == 32) {
-				game.scope.input.mouseButton = false;
+				//alert("Key up");
+				game.scope.input.mouseButton = false; 
+				game.scope.isSpacePressed = false;
 			}
+		}
+	}
+
+	var spam = function(pressed){
+		if (!game.scope.isSpacePressed) return;
+		console.log("spam");
+		if (pressed){
+			game.scope.input.mouseButton = false;
+			setTimeout(function(){spam(false)}, 50);
+		}
+		else {
+			game.scope.input.mouseButton = true;
+			setTimeout(function(){spam(true)}, 50);
 		}
 	}
 
