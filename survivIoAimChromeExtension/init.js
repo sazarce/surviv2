@@ -209,6 +209,12 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		if(!menu.isBinded()) {
 			menu.bind();
 		}
+		var canvas = document.getElementById('cvsoverlay');
+		console.log(canvas);
+		game.canvas = canvas;
+		game.overlay = canvas.getContext('2d');
+		canvas.width = canvas.clientWidth;
+		canvas.height = canvas.clientHeight;
 	}
 
 	var unbindCheatListeners = function() {

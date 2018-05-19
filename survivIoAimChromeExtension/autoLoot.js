@@ -37,6 +37,19 @@ var autoLoot = function(game, variables) {
 	}
 
 	var pickupLoot = function() {
+		game.overlay.clearRect(0, 0, game.canvas.width, game.canvas.height);
+		game.overlay.strokeStyle = 'green';
+		game.overlay.lineWidth = 2;
+		if (game.scope.lootBarn.lootPool.pool){
+			console.log("Lootbarn pool");
+			for (var ii = 0; ii<game.scope.lootBarn.lootPool.pool.length; ii++){
+				if (!game.scope.lootBarn.lootPool.pool[ii].active) continue;
+				var newpos1 =game.scope.camera.pointToScreen(game.scope.lootBarn.lootPool.pool[ii].pos);
+				game.overlay.strokeText(game.scope.lootBarn.lootPool.pool[ii].name, newpos1.x, newpos1.y);
+				//console.log(JSON.stringify(game.scope.lootBarn.lootPool.pool[ii]));
+
+			}
+		}
 		if(game.scope.lootBarn.closestLoot && game.scope.lootBarn.closestLoot.active) {
 			if(	/mm/.test(game.scope.lootBarn.closestLoot.name) ||
 				/12gauge/.test(game.scope.lootBarn.closestLoot.name) ||

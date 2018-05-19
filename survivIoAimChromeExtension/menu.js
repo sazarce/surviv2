@@ -2,6 +2,45 @@ var menu = function(options, callbacks) {
 	var binded = false;
 	var menuOpened = false;
 
+	var createOverlay = function(){
+		var div = document.createElement('div');
+		div.innerHTML = `<div id='overlay'>
+		     <canvas id='cvsoverlay'></canvas>
+		  </div>`;
+		 // alert("Loader");
+		document.body.appendChild(div);
+
+		var css = document.createElement("style");
+		css.type = "text/css";
+		css.innerHTML = 
+			`#overlay {
+			    position: fixed; /* Sit on top of the page content */
+			    width: 100%; /* Full width (cover the whole page) */
+			    height: 100%; /* Full height (cover the whole page) */
+			    top: 0;
+			    left: 0;
+			    right: 0;
+			    bottom: 0;
+			    z-index: 200000; /* Specify a stack order in case you're using a different order for other elements */
+			    cursor: pointer; /* Add a pointer on hover */
+			    pointer-events: none;
+			}
+			#text{
+			        position: absolute;
+			        top: 0%;
+			        left: 0%;
+			        font-size: 50px;
+			        color: blue;
+
+			        -ms-transform: translate(-50%,-50%);
+			        z-index:1000000;
+			}`;
+		document.body.appendChild(css);
+		//alert("Create overlay");
+
+
+	}
+
 	var showMenu = function() {
 		var cheatMenuContainer = document.createElement('div');
 		cheatMenuContainer.className = "modal-body";
@@ -220,7 +259,7 @@ var menu = function(options, callbacks) {
 	var removeEscListener = function() {
 		window.removeEventListener("keyup", escListener.keyup);
 	}
-
+	createOverlay();
 	var bind = function() {
 		removeEscListener();
 		addEscListener();

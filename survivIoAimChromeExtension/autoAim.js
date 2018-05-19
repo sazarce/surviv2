@@ -40,19 +40,34 @@ var autoAim = function(game, variables) {
 		var selfId = game.scope.activeId;
 		var objectIds = Object.keys(game.scope.objectCreator.idToObj);
 		var playerIds = Object.keys(game.scope.playerBarn.playerInfo);
-
+		
+		game.overlay.strokeStyle = 'orange';
+		game.overlay.lineWidth = 5;
 		for(var i = 0; i < playerIds.length; i++) {
+			var curplayer = game.scope.objectCreator.idToObj[playerIds[i]];
 			if( game.scope.objectCreator.idToObj[playerIds[i]] && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.dead) && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.downed) &&
 				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
+				//debugger;
 				if(playerIds[i] != selfId) {
+					//debugger;
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
+					var newpoint = game.scope.camera.pointToScreen(curplayer.pos);
+					game.overlay.strokeRect(newpoint.x-15, newpoint.y-15,30,30);
+					//console.log(newpoint.x, newpoint.y);
 				}
 			}
 		}
 
 		return result;
+	}
+
+	var drawPlayer = function(pos, color, thickness){
+		game.overlay.strokeStyle = color;
+		game.overlay.lineWidth = thickness;
+		var newpoint = game.scope.camera.pointToScreen(pos);
+		game.overlay.strokeRect(newpoint.x - 15, newpoint.y - 15 ,30, 30);
 	}
 
 	var getMinimalDistanceIndex = function(enemyDistances) {
@@ -192,6 +207,7 @@ var autoAim = function(game, variables) {
 				timestamp: Date.now(),
 			});
 			state.pop();
+			drawPlayer(state[0].pos, 'red', 7);
 			state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
 			state.averageTargetMousePosition = {
 				x: 0,
