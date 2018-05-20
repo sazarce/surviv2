@@ -39,9 +39,9 @@ var autoLoot = function(game, variables) {
 	var pickupLoot = function() {
 		game.overlay.clearRect(0, 0, game.canvas.width, game.canvas.height);
 		game.overlay.strokeStyle = 'green';
-		game.overlay.lineWidth = 2;
+		game.overlay.lineWidth = 1;
 		if (game.scope.lootBarn.lootPool.pool){
-			console.log("Lootbarn pool");
+			//console.log("Lootbarn pool");
 			for (var ii = 0; ii<game.scope.lootBarn.lootPool.pool.length; ii++){
 				if (!game.scope.lootBarn.lootPool.pool[ii].active) continue;
 				var newpos1 =game.scope.camera.pointToScreen(game.scope.lootBarn.lootPool.pool[ii].pos);

@@ -1,5 +1,5 @@
 var autoAim = function(game, variables) {
-
+	window.positionLog = [];
 	var bullets = variables.bullets;
 	var items = variables.items;
 	var playerBarn = variables.playerBarn;
@@ -49,14 +49,28 @@ var autoAim = function(game, variables) {
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.dead) && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.downed) &&
 				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
-				//debugger;
+				debugger;
 				if(playerIds[i] != selfId) {
 					//debugger;
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
 					var newpoint = game.scope.camera.pointToScreen(curplayer.pos);
 					game.overlay.strokeRect(newpoint.x-15, newpoint.y-15,30,30);
+					game.overlay.font = "38px";
+					game.overlay.lineWidth = 1;
+					game.overlay.strokeText(game.scope.objectCreator.idToObj[playerIds[i]].weapType, newpoint.x-5, newpoint.y + 30);
 					//console.log(newpoint.x, newpoint.y);
 				}
+				else {
+
+				}
+			}
+			if (playerIds[i] == selfId){
+				window.positionLog.push({time: Date.now(), pos: game.scope.objectCreator.idToObj[playerIds[i]].pos});
+				if (positionLog.length > 1000){
+					//console.log(window.positionLog);
+					//debugger;
+				}
+				///	debugger;
 			}
 		}
 
@@ -83,7 +97,6 @@ var autoAim = function(game, variables) {
 		} else {
 			bulletSpeed = 1000;
 		};
-
 		var selfPos = getSelfPos();
 
 		var predictionEnemyPos = {
@@ -99,10 +112,15 @@ var autoAim = function(game, variables) {
 
 		for(var i = 0; i < 10; i++) {
 			bulletApproachTime = predictionEnemyDistance/bulletSpeed;
+
 			predictionEnemyPos = {
 				x: enemyPos.x + enemySpeed.x * bulletApproachTime,
 				y: enemyPos.y + enemySpeed.y * bulletApproachTime
 			};
+			//game.overlay.beginPath();
+			//var newpoint = game.scope.camera.pointToScreen(predictionEnemyPos);
+			//game.overlay.arc(newpoint.x, newpoint.y, 10, 0, 2*Math.PI);
+			//game.overlay.fill()
 			predictionEnemyDistance = calculateDistance(selfPos.x, selfPos.y, predictionEnemyPos.x, predictionEnemyPos.y);
 		}
 
@@ -123,7 +141,7 @@ var autoAim = function(game, variables) {
 
 	var getNewState = function() {
 		var state = [];
-		for(var i = 0; i < 4; i++) {
+		for(var i = 0; i < 2; i++) {
 			state.push({
 				playerId: null, // Enemy id
 				distance: null,
@@ -221,7 +239,16 @@ var autoAim = function(game, variables) {
 
 			state.averageTargetMousePosition.x /= state.length;
 			state.averageTargetMousePosition.y /= state.length;
-			
+			game.overlay.beginPath();
+			var newpointt = state.averageTargetMousePosition;
+			console.log(newpointt);
+			var curpos = game.scope.camera.pointToScreen(selfPos);
+
+			game.overlay.moveTo(curpos.x, curpos.y);
+			game.overlay.lineWidth = 1;
+			game.overlay.lineTo(newpointt.x, newpointt.y);
+			game.overlay.stroke()
+			//debugger;
 			return;
 			// todo: check equals playerId in all items of array
 		}
@@ -334,6 +361,7 @@ var autoAim = function(game, variables) {
 			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
 			updateState(detectEnemies());
 			if(state.new) {
+				console.log("Render: " + JSON.stringify(state.averageTargetMousePosition));
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 			}
 		};
