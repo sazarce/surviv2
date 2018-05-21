@@ -49,7 +49,7 @@ var autoAim = function(game, variables) {
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.dead) && 
 				(!game.scope.objectCreator.idToObj[playerIds[i]].netData.downed) &&
 				game.scope.playerBarn.playerInfo[playerIds[i]].teamId != selfTeamId) {
-				debugger;
+				//debugger;
 				if(playerIds[i] != selfId) {
 					//debugger;
 					result[playerIds[i]] = game.scope.objectCreator.idToObj[playerIds[i]];
@@ -139,30 +139,88 @@ var autoAim = function(game, variables) {
 		}		
 	}
 
-	var getNewState = function() {
-		var state = [];
-		for(var i = 0; i < 2; i++) {
-			state.push({
-				playerId: null, // Enemy id
-				distance: null,
-				radianAngle: null,
-				pos: {
-					x: 0,
-					y: 0
-				},
-				timestamp: 0,
-				targetMousePosition: {
-					x: 0,
-					y: 0
-				}
-			});
+	var calculateMousePosition = function(enemyPos, vel){
+		//console.log("CalcMousePosition " + JSON.stringify(vel));
+
+		var bulletSpeed = 0;
+		var bulletApproachTime = Infinity;
+		
+		if(items[game.scope.activePlayer.weapType].bulletType) {
+			bulletSpeed = bullets[items[game.scope.activePlayer.weapType].bulletType].speed;
+		} else {
+			bulletSpeed = 1000;
+		};
+
+		var selfPos = getSelfPos();
+
+		var predictionEnemyPos = {
+			x: enemyPos.x,
+			y: enemyPos.y
 		}
-		state.new = null;
-		state.averageTargetMousePosition = null;
+		var predictionEnemyDistance = calculateDistance(selfPos.x, selfPos.y, enemyPos.x, enemyPos.y);
+		
+		var enemySpeed = {x: vel.x * 1000, y: vel.y * 1000};
+
+		for(var i = 0; i < 10; i++) {
+			bulletApproachTime = predictionEnemyDistance/bulletSpeed;
+
+			predictionEnemyPos = {
+				x: enemyPos.x + enemySpeed.x * bulletApproachTime,
+				y: enemyPos.y + enemySpeed.y * bulletApproachTime
+			};
+			//game.overlay.beginPath();
+			//var newpoint = game.scope.camera.pointToScreen(predictionEnemyPos);
+			//game.overlay.arc(newpoint.x, newpoint.y, 10, 0, 2*Math.PI);
+			//game.overlay.fill()
+			predictionEnemyDistance = calculateDistance(selfPos.x, selfPos.y, predictionEnemyPos.x, predictionEnemyPos.y);
+		}
+		//console.log(JSON.stringify(enemyPos));
+		//console.log(JSON.stringify(game.scope.camera.pointToScreen(predictionEnemyPos)));
+		return game.scope.camera.pointToScreen(predictionEnemyPos);
+	}
+	var getNewState = function() {
+		var state = {changeIndex: 0, prevXSign: 0, prevYSign: 0, bufferSize: 20, targetMousePosition: {x: 0, y: 0}, positions: [], vels: [], times: [], calcVel: {x: 0, y: 0}};
 		return state;
 	}
 
 	var state = getNewState();
+	var addNewPosition = function(pos){
+		state.positions.push(pos);
+    	state.times.push(Date.now())
+		if (state.positions.length == 1){
+			state.vels.push({x: 0, y: 0});
+     
+			state.calcVel.x = 0;
+			state.calcVel.y = 0;
+			return;
+		}
+		var curIndex = state.positions.length-1;
+
+		var curXVel = 1.0 * (state.positions[curIndex].x - state.positions[curIndex - 1].x) *1.0/ (state.times[curIndex] - state.times[curIndex -1] + 1); //velocity between ticks
+		var curYVel = (state.positions[curIndex].y - state.positions[curIndex - 1].y) *1.0/ (state.times[curIndex] - state.times[curIndex -1] + 1); //velocity between ticks)
+		state.vels.push({x: curXVel, y: curYVel});
+		//console.log("Instant vel: " + JSON.stringify(state.vels[state.vels.length - 1]))
+		var newXSign = Math.sign(curXVel);
+		var newYSign = Math.sign(curYVel);
+		if (curXVel != 0 && newXSign != state.prevXSign){ //moving in new direction
+			state.changeIndex = curIndex;
+			state.prevXSign = newXSign;
+		}
+		if (curYVel != 0 && newYSign != state.prevYSign){
+			state.changeIndex = curIndex;
+			state.prevYSign = newYSign;
+		}
+		//avg velocity from 0 to current
+		var calcXVel = 1.0 * (state.positions[curIndex].x - state.positions[Math.max(state.changeIndex, curIndex - state.bufferSize)].x)*1.0/(state.times[curIndex] - state.times[Math.max(state.changeIndex, curIndex - state.bufferSize)] + 1);
+		var calcYVel = 1.0 * (state.positions[curIndex].y - state.positions[Math.max(state.changeIndex, curIndex - state.bufferSize)].y)*1.0/(state.times[curIndex] - state.times[Math.max(state.changeIndex, curIndex - state.bufferSize)] + 1);
+		state.calcVel.x = calcXVel;
+		state.calcVel.y = calcYVel;
+
+	    //debugger;
+
+	}
+  
+
 	var updateState = function(detectedEnemies) {
 		var selfPos = getSelfPos();
 		var enemyDistances = [];
@@ -217,31 +275,36 @@ var autoAim = function(game, variables) {
 
 			var minimalDistanceEnemyIndex = getMinimalDistanceIndex(enemyDistances);
 
-			state.unshift({
-				playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
-				distance: enemyDistances[minimalDistanceEnemyIndex],
-				radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
-				pos: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos,
-				timestamp: Date.now(),
-			});
-			state.pop();
-			drawPlayer(state[0].pos, 'red', 7);
-			state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
-			state.averageTargetMousePosition = {
-				x: 0,
-				y: 0
-			};
+			
+			// state.unshift({
+			// 	playerId: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].__id,
+			// 	distance: enemyDistances[minimalDistanceEnemyIndex],
+			// 	radianAngle: enemyRadianAngles[minimalDistanceEnemyIndex],
+			// 	pos: detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos,
+			// 	timestamp: Date.now(),
+			// });
+			// state.pop();
+			// drawPlayer(state[0].pos, 'red', 7);
+			// state[0].targetMousePosition = calculateTargetMousePosition(state[0].pos, state[0].timestamp, state[1].pos, state[1].timestamp, state.distance);
+			// state.averageTargetMousePosition = {
+			// 	x: 0,
+			// 	y: 0
+			// };
 
-			for(var i = 0; i < state.length; i++) {
-				state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
-				state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
-			}
+			// for(var i = 0; i < state.length; i++) {
+			// 	state.averageTargetMousePosition.x += state[i].targetMousePosition.x;
+			// 	state.averageTargetMousePosition.y += state[i].targetMousePosition.y;
+			// }
 
-			state.averageTargetMousePosition.x /= state.length;
-			state.averageTargetMousePosition.y /= state.length;
+			// state.averageTargetMousePosition.x /= state.length;
+			// state.averageTargetMousePosition.y /= state.length;
+			addNewPosition(detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos);
+			state.averageTargetMousePosition = calculateMousePosition(detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos, state.calcVel);
+			drawPlayer(detectedEnemies[detectedEnemiesKeys[minimalDistanceEnemyIndex]].netData.pos, 'red', 7);
 			game.overlay.beginPath();
 			var newpointt = state.averageTargetMousePosition;
-			console.log(newpointt);
+			//console.log(state.calcVel);
+			
 			var curpos = game.scope.camera.pointToScreen(selfPos);
 
 			game.overlay.moveTo(curpos.x, curpos.y);
@@ -361,7 +424,7 @@ var autoAim = function(game, variables) {
 			defaultPlayerBarnRenderFunction.call(playerBarnRenderContext, e);
 			updateState(detectEnemies());
 			if(state.new) {
-				console.log("Render: " + JSON.stringify(state.averageTargetMousePosition));
+				//console.log("Render: " + JSON.stringify(state.averageTargetMousePosition));
 				game.scope.input.mousePos = state.averageTargetMousePosition;
 			}
 		};
