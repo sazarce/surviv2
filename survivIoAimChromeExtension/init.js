@@ -77,7 +77,7 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 
 		defsParticles["bush_03"].img.alpha = defsParticles["bush_02"].img.alpha = defsParticles["bush_01"].img.alpha = options.particlesTransparency;
 
-		defsParticles["tree_01"].img.alpha = defsParticles["tree_02"].img.alpha = options.particlesTransparency;
+		defsParticles["tree_01"].img.alpha = options.particlesTransparency;
 		
 		defsParticles["table_02"].img.alpha = defsParticles["table_01"].img.alpha = options.particlesTransparency;
 
