@@ -1,1 +1,3 @@
 server/public/
+server/node_modules/
+*~
