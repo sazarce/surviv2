@@ -175,6 +175,7 @@ var codeInjector = (function(){
 			}
 
 			var patchedAppCode = patchAppCode(xhr.responseText);
+			console.log(patchedAppCode);
 			chrome.storage.local.set({
 				'appCode': patchedAppCode,
 				'appVer': url.match(/app\.(.*)\.js/)[1]

@@ -2,10 +2,14 @@ var http = require('http');
 var fs = require('fs')
 var path = require('path')
 var zlib = require('zlib')
+
+
 var mkdirp = require('mkdirp')
 var Readable = require('stream').Readable;
-http.createServer(onRequest).listen(3000);
-require('longjohn')
+require('./background.js')()
+
+http.createServer(onRequest).listen(process.env.PORT || 3000);
+
 
 function onRequest(client_req, client_res) {
 
@@ -34,7 +38,7 @@ function onRequest(client_req, client_res) {
             });
             client_req.on('end', function() {
                 client_req.post = queryData;
-                console.log("Data: " + queryData);
+                //console.log("Data: " + queryData);
                 var post_options = {
                     host: 'www.surviv.io',
                     port: 80,
@@ -46,7 +50,7 @@ function onRequest(client_req, client_res) {
                 post_options.headers.host = "surviv.io";
                 post_options.headers.origin = "http://surviv.io";
                 post_options.headers.referer = "http://surviv.io";
-                console.log(client_req.headers)
+                //console.log(client_req.headers)
                 var post_req = http.request(post_options, function(res) {
                 	var gunzip = zlib.createGunzip();
 
@@ -57,7 +61,7 @@ function onRequest(client_req, client_res) {
                     })
                     gunzip.on('end', function(){
                     	//console.log(res.headers);
-                    	console.log(body)
+                    	//console.log(body)
 
                     	client_res.writeHead(200, res.headers)
                     	
@@ -81,15 +85,36 @@ function onRequest(client_req, client_res) {
                 data.push(chunk);
             });
             proxyRes.on('end', function() {
+                
+                //console.log("Download " + (fileName + ".headers"));
+                //console.log(JSON.stringify(proxyRes.headers))
+
+                if (client_req.url.split('.').pop() == "js"){
+                	var details = {
+                		url: "http://surviv.io" + client_req.url,
+
+                	}
+                	listener(details, function(code){
+
+                		if (client_req.url.includes("app")){
+                			//fs.writeFileSync("test.js", code)
+                		}
+                		//proxyRes.headers['Content-Length'] = code.length;
+                		//console.log(proxyRes.headers)
+                		var newHeaders = proxyRes.headers;
+                		newHeaders['content-length'] = Buffer.byteLength(code);
+                		client_res.writeHead(200, proxyRes.headers);
+                		client_res.end(code);
+                	});
+                	//console.log("Injected code: " + injectedCode);
+                	return;
+                }
                 var buffer = Buffer.concat(data);
-                console.log(proxyRes.headers)
+                //console.log(proxyRes.headers)
                 client_res.writeHead(200, proxyRes.headers);
                 client_res.end(buffer);
                 var fileName = path.join(__dirname, 'public', client_req.url);
                 mkdirp(path.dirname(fileName), function(err) {})
-                console.log("Download " + (fileName + ".headers"));
-                console.log(JSON.stringify(proxyRes.headers))
-
                 fs.writeFile(fileName, buffer, function(err) {
 
                 });
