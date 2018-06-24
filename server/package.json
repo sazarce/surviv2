@@ -13,7 +13,7 @@
     "websocket": "^1.0.26",
     "ws": "^5.2.1",
     "xmlhttprequest": "^1.8.0"
-  },
+  }, 
   "engines": {
     "node": "6.14.1"
   }
