@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "mkdirp": "^0.5.1",
+    "websocket": "1.0.26",
     "xmlhttprequest": "^1.8.0"
   },
   "engines": {
