@@ -8,13 +8,51 @@ var mkdirp = require('mkdirp')
 var Readable = require('stream').Readable;
 require('./background.js')()
 
-http.createServer(onRequest).listen(process.env.PORT || 3000);
+var httpServer = http.createServer(onRequest).listen(process.env.PORT || 3000);
 console.log("Listening on " + (process.env.PORT || 3000))
-
+const websocket = require('websocket')
+const wss = websocket.server;
+var WebSocketClient = websocket.client;
+wsServer = new wss({
+	httpServer: httpServer
+})
+wsServer.on('request', function(request){
+	console.log("Request" + request)
+	var connection = request.accept(null, request.origin);
+	var client = new WebSocketClient();
+	var messageBuffer = [];
+	connection.on('message', function(message){
+		if (message){
+			console.log("Received message: " + message.utf8Data);
+			messageBuffer.push(message);
+		}
+	})
+	client.on('connect', function(connection2){
+		console.log("Client connected");
+		connection2.on('message', function(message){
+			console.log("Received " + message.utf8Data)
+			connection.sendUTF(message.utf8Data);
+		})
+		connection.on('message', function(){
+			while(messageBuffer.length > 0){
+				console.log("Send message " + messageBuffer[0].utf8Data);
+				connection2.sendUTF(messageBuffer[0].utf8Data)
+				messageBuffer.shift();
+			}
+		})
+		connection2.on('close', function(){
+			console.log("Client connection closed");
+			connection.close();
+		})
+		connection.emit('message')
+	})
+	client.connect('ws://surviv.io' + request.resourceURL.path);
+});
 function onRequest(client_req, client_res) {
 
     var response = client_res;
-    if (!client_req.url.includes("api") && client_req.url != "/" && client_req.method != "POST" && fs.existsSync(path.join(__dirname, 'public', client_req.url))) {
+    console.log(client_req.url)
+    if (!client_req.url.includes("team") && !client_req.url.includes("api") && client_req.url != "/" && client_req.method != "POST" && fs.existsSync(path.join(__dirname, 'public', client_req.url))) {
         fs.readFile(path.join(__dirname, 'public', client_req.url), function(err, data) {
             //console.log("Cached " + client_req.url)
             fs.readFile(path.join(__dirname, 'public', client_req.url + ".headers"), function(err, data2){

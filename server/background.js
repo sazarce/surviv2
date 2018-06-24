@@ -75,7 +75,9 @@ function wrapAppCode(appCode) {
 
     return appCode;
 }
-
+RegExp.escape= function(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+};
 function patchAppCode(appCode) {
 
     appCode = wrapAppCode(appCode);
@@ -105,14 +107,21 @@ function patchAppCode(appCode) {
             name: "Smoke gernage alpha",
             from: /sprite.tint=([a-z]).tint,([a-z]).sprite.alpha=[a-z],([a-z]).sprite.visible=([a-z]).active/g,
             to: 'sprite.tint=$1.tint,$2.sprite.alpha=0.1,$3.sprite.visible=$4.active'
+        },
+        {
+            name: "Fix teams",
+            from: new RegExp("([a-z])=\"app\\-\"\\+([a-z])\\.appIdToString\\(([a-z])\\.appId\\)\\+\"\\.\"\\+\\\/\\(\\[\\^\\\\\\.\\]\\+\\\\\\.\\[\\^\\\\\\.\\]\\+\\)\\$\\\/\\.exec\\(window\\.location\\.hostname\\)\\[0\\]", "g"),
+            to: "$1=window.location.host"
         }
     ];
 
     patchRules.forEach(function(item) {
         if (item.from.test(appCode)) {
+            console.log("Patched " + item.name)
             appCode = appCode.replace(item.from, item.to);
         } else {
             console.log("Err patching: " + item.name);
+            console.log(item.from)
         }
     });
 
