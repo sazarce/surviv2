@@ -1,6 +1,6 @@
-#surviv.io Hack
+# surviv.io Hack
 Based on [survivIoAim](https://github.com/w3x731/survivIoAim).
-###Features
+### Features
 
 - Proxy available; no installation needed
 - See players behind buildings, trees, smoke grenades, and other hiding places
