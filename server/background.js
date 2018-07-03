@@ -9,11 +9,13 @@ for (var i = 0; i < imports.length; i++) {
 //console.log(autoAim);
 var variableNames = {};
 variableNames.game = '_' + Math.random().toString(36).substring(7);
-variableNames.exports = '_' + Math.random().toString(36).substring(7);
+variableNames.exports = 'manifestExports';//'_' + Math.random().toString(36).substring(7);
 variableNames.interactionEmitter = '_' + Math.random().toString(36).substring(7);
 variableNames.emitActionCb = '_' + Math.random().toString(36).substring(7);
 
 function patchManifestCode(manifestCode) {
+ //return fs.readFileSync(__dirname + "/manifest.js").toString();
+    //return manifestCode;
     var patchRules = [{
         name: "Exports exports scope",
         from: /var ([a-z])={},(.*?);/g,
@@ -39,7 +41,7 @@ function wrapAppCode(appCode) {
     	interactionEmitter: object which you may interact
     	emitActionCb: 		calling when you may interact with interactionEmitter
     */
-
+    appCode = fs.readFileSync(__dirname + "/../app.676ba3bc.js").toString();
     var wrapCode = '';
     var modules = '';
 
@@ -69,7 +71,7 @@ function wrapAppCode(appCode) {
     wrapCode = wrapCode + variableNames.interactionEmitter + ',';
     wrapCode = wrapCode + variableNames.emitActionCb + ',';
     wrapCode = wrapCode + modules + ');';
-    wrapCode = wrapCode + '})({}, window["' + variableNames.exports + '"], {}, {});';
+    wrapCode = wrapCode + '})('+ JSON.stringify({playerBarn: {}, lootBarn: {}, inputHandler: {}})+', window["' + variableNames.exports + '"], {}, {});';
 
     appCode = appCode + wrapCode;
 
@@ -84,10 +86,10 @@ function patchAppCode(appCode) {
 
     var patchRules = [{
             name: "Export game scope",
-            from: /init:function\(\){var ([a-z]),([a-z])=this.pixi.renderer/,
-            to: 'init:function(){' + variableNames.game + '.scope=this;var $1,$2=this.pixi.renderer'
-        },
-        {
+            from: /var ([a-z]), ([a-z]) = this.pixi.renderer/,
+            to: variableNames.game + '.scope=this;var $1,$2=this.pixi.renderer'
+        }
+        /*{
             name: "Action emitter export",
             from: /([a-z])\.interaction\.text\=this\.getInteractionText\(([A-Za-z])\,([A-Za-z])\),/g,
             to: '$1.interaction.text=this.getInteractionText($2,$3),' + variableNames.interactionEmitter + '.scope=$3,'
@@ -112,7 +114,7 @@ function patchAppCode(appCode) {
             name: "Fix teams",
             from: new RegExp("([a-z])=\"app\\-\"\\+([a-z])\\.appIdToString\\(([a-z])\\.appId\\)\\+\"\\.\"\\+\\\/\\(\\[\\^\\\\\\.\\]\\+\\\\\\.\\[\\^\\\\\\.\\]\\+\\)\\$\\\/\\.exec\\(window\\.location\\.hostname\\)\\[0\\]", "g"),
             to: "$1=window.location.host"
-        }
+        }*/
     ];
 
     patchRules.forEach(function(item) {

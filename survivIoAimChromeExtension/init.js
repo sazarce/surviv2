@@ -1,4 +1,5 @@
 var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
+	debugger;
 	if(!exports) return;
 	
 	function findVariable(name, exports) {
@@ -22,6 +23,9 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 		}	
 	}
 
+	function findPlayerBarn(){
+
+	}
 	var options = {
 		particlesTransparency: 0.5,
 		ceilingTrancparency: 0.5,
@@ -37,10 +41,10 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	var bullets = findVariable("bullets", exports);
 	var items = findVariable("items", exports);
 	var bagSizes = findVariable("bagSizes", exports);
-	var playerBarn = findVariable("PlayerBarn", exports);
-	var lootBarn = findVariable("LootBarn", exports);
+	var playerBarn = window.game.playerBarn;//findVariable("PlayerBarn", exports);
+	var lootBarn = window.game.lootBarn;//findVariable("LootBarn", exports);
 	var scopeZoomRadius = findVariable("scopeZoomRadius", exports);
-	var inputHandler = findVariable("InputHandler", exports);
+	var inputHandler = window.game.inputHandler;//findVariable("InputHandler", exports);
 
 	if(inputHandler) {
 		var defaultInputHandlerFreeFunction = function() {};
@@ -240,12 +244,14 @@ var init = function(game, exports, interactionEmitter, emitActionCb, modules) {
 	}
 
 	var gameOver = function() {
+		return false;
 		if(game.scope) return !!game.scope.gameOver;
 		return true;
 	}
 
 	var cheatEnabled = false;
 	function enableCheat() {
+		debugger;
 		if(game.scope && !gameOver() && !cheatEnabled) {			
 			bindCheatListeners();
 			cheatEnabled = true;
